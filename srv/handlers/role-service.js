@@ -1,6 +1,6 @@
 const cds = require('@sap/cds')
 const {
-    getUserRole
+    getUserInfo
 } = require('../lib/user-role')
 
 module.exports =
@@ -10,11 +10,16 @@ cds.service.impl(function(){
         'getUserInfo',
         async req => {
 
-            let role = 'Unknown'
+            let userInfo = {
+                userId: req.user.id,
+                userName: req.user.id,
+                email: undefined,
+                role: 'Unknown'
+            }
 
             try {
-                role =
-                    await getUserRole(
+                userInfo =
+                    await getUserInfo(
                         req.user.id,
                         req.user
                     )
@@ -24,15 +29,7 @@ cds.service.impl(function(){
                 )
             }
 
-            return {
-
-                userId:
-                    req.user.id,
-
-                role:
-                    role
-
-            }
+            return userInfo
 
         }
     )

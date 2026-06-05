@@ -1,5 +1,5 @@
 const cds = require("@sap/cds");
-const { getUserRole } = require("../lib/user-role");
+const { getUserInfo, getUserRole } = require("../lib/user-role");
 
 module.exports = cds.service.impl(async function () {
   const { WorkOrders, StatusHistory } = cds.entities("maintenance");
@@ -9,18 +9,18 @@ module.exports = cds.service.impl(async function () {
     'WorkOrders',
     async req => {
 
-        const role =
-            await getUserRole(
+        const userInfo =
+            await getUserInfo(
                 req.user.id,
                 req.user
             )
 
-        if(role === 'Technician'){
+        if(userInfo.role === 'Technician'){
 
             req.query.where({
 
                 AssignedTo:
-                    req.user.id
+                    userInfo.userId
 
             })
 
@@ -80,9 +80,9 @@ this.before(
 
   this.on("updateStatus", async (req) => {
     const { workOrderNo, status } = req.data;
-    const role = await getUserRole(req.user.id, req.user);
+    const userInfo = await getUserInfo(req.user.id, req.user);
 
-    if (role !== "Technician") {
+    if (userInfo.role !== "Technician") {
       req.reject(403, "Only Technician");
     }
 
@@ -94,7 +94,7 @@ this.before(
       req.reject(404, "Work order not found");
     }
 
-    if (current.AssignedTo !== req.user.id) {
+    if (!isAssignedToCurrentUser(current, userInfo, req.user)) {
       req.reject(403, "Work order is not assigned to you");
     }
 
@@ -103,7 +103,7 @@ this.before(
       WorkOrderNo: workOrderNo,
       OldStatus: current.Status,
       NewStatus: status,
-      ChangedBy: req.user.id,
+      ChangedBy: userInfo.userId,
       ChangedAt: new Date(),
     });
 
@@ -124,14 +124,14 @@ this.on(
     'startWork',
     async req => {
 
-        const role =
-            await getUserRole(
+        const userInfo =
+            await getUserInfo(
                 req.user.id,
                 req.user
             )
 
         if(
-            role !== 'Technician'
+            userInfo.role !== 'Technician'
         ){
 
             req.reject(
@@ -156,7 +156,7 @@ this.on(
                 req.data.workOrderNo,
 
             AssignedTo:
-                req.user.id
+                userInfo.userId
 
         })
 
@@ -167,14 +167,14 @@ this.on(
     'completeWork',
     async req => {
 
-        const role =
-            await getUserRole(
+        const userInfo =
+            await getUserInfo(
                 req.user.id,
                 req.user
             )
 
         if(
-            role !== 'Technician'
+            userInfo.role !== 'Technician'
         ){
 
             req.reject(
@@ -199,7 +199,7 @@ this.on(
                 req.data.workOrderNo,
 
             AssignedTo:
-                req.user.id
+                userInfo.userId
 
         })
 
@@ -253,3 +253,13 @@ this.on(
     }
 )
 });
+
+function isAssignedToCurrentUser(current, userInfo, user) {
+  return [
+    userInfo.userId,
+    userInfo.email,
+    user?.id,
+  ]
+    .filter(Boolean)
+    .some(value => String(current.AssignedTo || '').toUpperCase() === String(value).toUpperCase());
+}

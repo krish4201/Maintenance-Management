@@ -1,7 +1,9 @@
 type UserInfo {
 
-    userId : String;
-    role   : String;
+    userId   : String;
+    userName : String;
+    email    : String;
+    role     : String;
 
 }
 
