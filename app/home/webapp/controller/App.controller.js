@@ -51,11 +51,11 @@ sap.ui.define([
     },
 
     onCreateWorkOrder: function () {
-      window.location.href = WORK_ORDER_APP + "#/WorkOrders";
+      window.location.href = WORK_ORDER_APP;
     },
 
     onCreateEquipment: function () {
-      window.location.href = EQUIPMENT_APP + "#/Equipments";
+      window.location.href = EQUIPMENT_APP;
     },
 
     _loadDashboard: async function (role) {

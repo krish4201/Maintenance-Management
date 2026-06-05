@@ -34,15 +34,15 @@ this.before(
     'WorkOrders',
     async req => {
 
-        const role =
-            await getUserRole(
+        const userInfo =
+            await getUserInfo(
                 req.user.id,
                 req.user
             )
 
         if(
-            role !== 'Planner' &&
-            role !== 'Supervisor'
+            userInfo.role !== 'Planner' &&
+            userInfo.role !== 'Supervisor'
         ){
 
             req.reject(
@@ -51,6 +51,26 @@ this.before(
             )
 
         }
+
+        req.data.ID =
+            req.data.ID ||
+            cds.utils.uuid()
+
+        req.data.WorkOrderNo =
+            req.data.WorkOrderNo ||
+            await nextWorkOrderNo()
+
+        req.data.Status =
+            req.data.Status ||
+            'Created'
+
+        req.data.CreatedBy =
+            req.data.CreatedBy ||
+            userInfo.userId
+
+        req.data.CreatedAt =
+            req.data.CreatedAt ||
+            new Date()
 
     }
 )
@@ -262,4 +282,15 @@ function isAssignedToCurrentUser(current, userInfo, user) {
   ]
     .filter(Boolean)
     .some(value => String(current.AssignedTo || '').toUpperCase() === String(value).toUpperCase());
+}
+
+async function nextWorkOrderNo() {
+  const latest = await SELECT.one
+    .from('maintenance.WorkOrders')
+    .columns('WorkOrderNo')
+    .orderBy('WorkOrderNo desc');
+
+  const currentNumber = Number(String(latest?.WorkOrderNo || '').replace(/\D/g, '')) || 0;
+
+  return `WO${String(currentNumber + 1).padStart(3, '0')}`;
 }
