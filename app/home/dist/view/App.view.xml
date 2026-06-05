@@ -2,6 +2,7 @@
   controllerName="maintenance.home.controller.App"
   displayBlock="true"
   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns:viz="sap.viz.ui5.controls"
   xmlns:viz.data="sap.viz.ui5.data"
@@ -37,14 +38,14 @@
               </VBox>
               <HBox class="heroActions">
                 <Button
-                  text="Create Work Order"
+                  text="Assign Technician"
                   type="Emphasized"
-                  icon="sap-icon://add"
-                  press=".onCreateWorkOrder" />
+                  icon="sap-icon://employee-approvals"
+                  press=".onAssignTechnician" />
                 <Button
-                  text="Create Equipment"
-                  icon="sap-icon://add-equipment"
-                  press=".onCreateEquipment" />
+                  text="Work Orders"
+                  icon="sap-icon://activity-items"
+                  press=".onOpenWorkOrders" />
               </HBox>
             </HBox>
           </VBox>
@@ -170,10 +171,128 @@
         <VBox
           visible="{home>/technician}"
           class="homeContent technicianPanel">
-          <Title text="Technician Workspace" level="H2" />
-          <Text text="Opening assigned work orders..." />
+          <VBox class="heroBand">
+            <HBox class="heroHeader" alignItems="Center" justifyContent="SpaceBetween">
+              <VBox>
+                <Title text="Technician Workspace" level="H2" />
+                <Text text="Work orders and procedures assigned to you" class="heroSubtitle" />
+              </VBox>
+              <HBox class="heroActions">
+                <Button text="Start Work" type="Emphasized" icon="sap-icon://begin" press=".onStartSelectedWork" />
+                <Button text="Complete Work" icon="sap-icon://complete" press=".onCompleteSelectedWork" />
+              </HBox>
+            </HBox>
+          </VBox>
+          <FlexBox class="linkGrid" wrap="Wrap" renderType="Bare">
+            <GenericTile
+              header="Assigned to Me"
+              subheader="Open my work order list"
+              press=".onOpenWorkOrders">
+              <TileContent>
+                <NumericContent icon="sap-icon://employee-approvals" value="{home>/assignedCount}" />
+              </TileContent>
+            </GenericTile>
+            <GenericTile
+              header="Procedure List"
+              subheader="Show procedures for my orders"
+              press=".onShowProcedures">
+              <TileContent>
+                <NumericContent icon="sap-icon://list" value="{home>/procedureList/length}" />
+              </TileContent>
+            </GenericTile>
+          </FlexBox>
         </VBox>
       </content>
+      <dependents>
+        <Dialog
+          id="createWorkOrderDialog"
+          title="Create Work Order"
+          contentWidth="34rem">
+          <content>
+            <VBox class="createForm">
+              <Label text="Equipment ID" required="true" />
+              <Input value="{home>/create/EquipmentID}" placeholder="EQ001" />
+
+              <Label text="Equipment Name" required="true" />
+              <Input value="{home>/create/EquipmentName}" placeholder="Pump A" />
+
+              <Label text="Procedure ID" required="true" />
+              <Input value="{home>/create/ProcedureID}" placeholder="MP001" />
+
+              <Label text="Maintenance Type" required="true" />
+              <Select selectedKey="{home>/create/MaintenanceType}" width="100%">
+                <core:Item key="Preventive Maintenance" text="Preventive Maintenance" />
+                <core:Item key="Breakdown Maintenance" text="Breakdown Maintenance" />
+              </Select>
+
+              <Label text="Priority" required="true" />
+              <Select selectedKey="{home>/create/Priority}" width="100%">
+                <core:Item key="Low" text="Low" />
+                <core:Item key="Medium" text="Medium" />
+                <core:Item key="High" text="High" />
+                <core:Item key="Critical" text="Critical" />
+              </Select>
+
+              <Label text="Status" />
+              <Input value="{home>/create/Status}" enabled="false" />
+
+              <VBox visible="{home>/supervisor}" class="assignmentFields">
+                <Label text="Technician ID" />
+                <Input value="{home>/create/AssignedTo}" placeholder="TC002" />
+
+                <Label text="Technician Name" />
+                <Input value="{home>/create/AssignedName}" placeholder="Technician name" />
+              </VBox>
+            </VBox>
+          </content>
+          <beginButton>
+            <Button text="Create" type="Emphasized" icon="sap-icon://accept" press=".onSubmitWorkOrder" />
+          </beginButton>
+          <endButton>
+            <Button text="Cancel" press=".onCancelCreateWorkOrder" />
+          </endButton>
+        </Dialog>
+        <Dialog
+          id="assignTechnicianDialog"
+          title="Assign Technician"
+          contentWidth="34rem">
+          <content>
+            <VBox class="createForm">
+              <Label text="Work Order" required="true" />
+              <Select selectedKey="{home>/assign/WorkOrderNo}" width="100%" items="{home>/workOrders}">
+                <core:Item key="{home>WorkOrderNo}" text="{home>WorkOrderNo} - {home>EquipmentName}" />
+              </Select>
+
+              <Label text="Technician" required="true" />
+              <Select selectedKey="{home>/assign/TechnicianId}" width="100%" items="{home>/technicians}" change=".onTechnicianSelected">
+                <core:Item key="{home>userId}" text="{home>userId} - {home>userName}" />
+              </Select>
+            </VBox>
+          </content>
+          <beginButton>
+            <Button text="Assign" type="Emphasized" icon="sap-icon://accept" press=".onSubmitAssignTechnician" />
+          </beginButton>
+          <endButton>
+            <Button text="Cancel" press=".onCancelAssignTechnician" />
+          </endButton>
+        </Dialog>
+        <Dialog
+          id="procedureListDialog"
+          title="Procedure List"
+          contentWidth="42rem">
+          <content>
+            <List items="{home>/procedureList}">
+              <StandardListItem
+                title="{home>ProcedureID}"
+                description="{home>EquipmentName}"
+                info="{home>MaintenanceType}" />
+            </List>
+          </content>
+          <endButton>
+            <Button text="Close" press=".onCloseProcedures" />
+          </endButton>
+        </Dialog>
+      </dependents>
     </Page>
   </App>
 </mvc:View>

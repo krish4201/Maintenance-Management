@@ -7,9 +7,17 @@ type UserInfo {
 
 }
 
+type TechnicianInfo {
+    userId   : String;
+    userName : String;
+}
+
 service RoleService @(requires: 'authenticated-user') {
 
     function getUserInfo()
     returns UserInfo;
+
+    function getTechnicians()
+    returns array of TechnicianInfo;
 
 }

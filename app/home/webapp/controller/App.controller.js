@@ -50,13 +50,31 @@ sap.ui.define([
       window.location.href = EQUIPMENT_APP;
     },
 
-    onCreateWorkOrder: function () {
+    onCreateWorkOrder: async function () {
       this._resetCreateForm();
+      try {
+        await this._loadEquipments();
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to load equipment list");
+      }
       this.byId("createWorkOrderDialog").open();
     },
 
     onCreateEquipment: function () {
       window.location.href = EQUIPMENT_APP;
+    },
+
+    onAssignTechnician: async function () {
+      await Promise.all([
+        this._loadAssignableWorkOrders(),
+        this._loadTechnicians()
+      ]);
+      this._setProperty("/assign", {
+        WorkOrderNo: "",
+        TechnicianId: "",
+        TechnicianName: ""
+      });
+      this.byId("assignTechnicianDialog").open();
     },
 
     onCancelCreateWorkOrder: function () {
@@ -67,15 +85,18 @@ sap.ui.define([
       const payload = Object.assign({}, this._model.getProperty("/create"));
       const role = this._model.getProperty("/role");
 
+      if (role !== "Planner") {
+        MessageToast.show("Only planner can create work orders");
+        return;
+      }
+
       if (!payload.EquipmentID || !payload.EquipmentName || !payload.ProcedureID) {
         MessageToast.show("Enter equipment and procedure details");
         return;
       }
 
-      if (role !== "Supervisor") {
-        delete payload.AssignedTo;
-        delete payload.AssignedName;
-      }
+      delete payload.AssignedTo;
+      delete payload.AssignedName;
 
       try {
         await this._postJson("/odata/v4/work-order/WorkOrders", payload);
@@ -85,6 +106,71 @@ sap.ui.define([
       } catch (error) {
         this._setProperty("/error", error.message || "Unable to create work order");
       }
+    },
+
+    onCancelAssignTechnician: function () {
+      this.byId("assignTechnicianDialog").close();
+    },
+
+    onTechnicianSelected: function (event) {
+      const selected = event.getParameter("selectedItem");
+      const technician = selected && selected.getBindingContext("home").getObject();
+
+      if (technician) {
+        this._setProperty("/assign/TechnicianName", technician.userName);
+      }
+    },
+
+    onEquipmentSelected: async function (event) {
+      const selected = event.getParameter("selectedItem");
+      const equipment = selected && selected.getBindingContext("home").getObject();
+
+      if (!equipment) {
+        return;
+      }
+
+      this._setProperty("/create/EquipmentName", equipment.equipment_name || "");
+      this._setProperty("/create/ProcedureID", "");
+
+      await this._mapProcedureForEquipment(equipment.equipment_id);
+    },
+
+    onSubmitAssignTechnician: async function () {
+      const assign = this._model.getProperty("/assign");
+
+      if (!assign.WorkOrderNo || !assign.TechnicianId) {
+        MessageToast.show("Select work order and technician");
+        return;
+      }
+
+      try {
+        await this._postJson("/odata/v4/work-order/assignTechnician", {
+          workOrderNo: assign.WorkOrderNo,
+          technicianId: assign.TechnicianId,
+          technicianName: assign.TechnicianName || assign.TechnicianId
+        });
+        MessageToast.show("Technician assigned");
+        this.byId("assignTechnicianDialog").close();
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to assign technician");
+      }
+    },
+
+    onStartSelectedWork: async function () {
+      await this._updateSelectedWork("startWork");
+    },
+
+    onCompleteSelectedWork: async function () {
+      await this._updateSelectedWork("completeWork");
+    },
+
+    onShowProcedures: async function () {
+      await this._loadProcedureList();
+      this.byId("procedureListDialog").open();
+    },
+
+    onCloseProcedures: function () {
+      this.byId("procedureListDialog").close();
     },
 
     _loadDashboard: async function (role) {
@@ -131,8 +217,116 @@ sap.ui.define([
     },
 
     _loadTechnicianSummary: async function () {
-      const count = await this._getText("/odata/v4/work-order/WorkOrders/$count");
+      const [count, workOrders] = await Promise.all([
+        this._getText("/odata/v4/work-order/WorkOrders/$count"),
+        this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'")
+      ]);
+      const assignedOrders = workOrders.value || [];
+
       this._setProperty("/assignedCount", Number(count) || 0);
+      this._setProperty("/workOrders", assignedOrders);
+
+      if (!this._model.getProperty("/selectedWorkOrder") && assignedOrders.length) {
+        this._setProperty("/selectedWorkOrder", assignedOrders[0].WorkOrderNo);
+      }
+    },
+
+    _loadAssignableWorkOrders: async function () {
+      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentName,Status&$filter=Status eq 'Open'");
+      this._setProperty("/workOrders", data.value || []);
+    },
+
+    _loadTechnicians: async function () {
+      const data = await this._getJson("/odata/v4/role/getTechnicians()");
+      this._setProperty("/technicians", data.value || data);
+    },
+
+    _loadProcedureList: async function () {
+      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status");
+      const workOrders = data.value || [];
+      const procedures = await Promise.all(workOrders.map(async workOrder => {
+        const procedure = await this._getProcedureForEquipment(workOrder.EquipmentID);
+
+        return {
+          WorkOrderNo: workOrder.WorkOrderNo,
+          EquipmentName: workOrder.EquipmentName,
+          ProcedureID: workOrder.ProcedureID,
+          MaintenanceType: workOrder.MaintenanceType,
+          MaintenanceProcedure: procedure?.MaintenanceProcedure || "",
+          Status: workOrder.Status
+        };
+      }));
+
+      this._setProperty("/procedureList", procedures);
+    },
+
+    _loadEquipments: async function () {
+      if ((this._model.getProperty("/equipments") || []).length) {
+        return;
+      }
+
+      const data = await this._getJson("/odata/v4/equipment-service-api/Equipments?$select=equipment_id,equipment_name&$orderby=equipment_id");
+      this._setProperty("/equipments", data.value || []);
+    },
+
+    _mapProcedureForEquipment: async function (equipmentId) {
+      const procedure = await this._getProcedureForEquipment(equipmentId);
+
+      if (!procedure) {
+        MessageToast.show("No procedure found for selected equipment");
+        return;
+      }
+
+      this._setProperty("/create/ProcedureID", procedure.EquipmentID);
+      this._setProperty("/create/MaintenanceType", this._mapMaintenanceType(procedure.MaintenanceCategory));
+    },
+
+    _getProcedureForEquipment: async function (equipmentId) {
+      if (!equipmentId) {
+        return null;
+      }
+
+      const encoded = encodeURIComponent(String(equipmentId).replace(/'/g, "''"));
+      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,MaintenanceCategory,MaintenanceProcedure&$filter=EquipmentID eq '${encoded}'&$top=1`);
+
+      return (data.value || [])[0] || null;
+    },
+
+    _mapMaintenanceType: function (category) {
+      const value = String(category || "").toLowerCase();
+
+      if (value.includes("break")) {
+        return "Breakdown Maintenance";
+      }
+
+      return "Preventive Maintenance";
+    },
+
+    _updateSelectedWork: async function (action) {
+      const workOrderNo = this._model.getProperty("/selectedWorkOrder");
+      const workOrder = (this._model.getProperty("/workOrders") || [])
+        .find(order => order.WorkOrderNo === workOrderNo);
+
+      if (!workOrder) {
+        MessageToast.show("Select an assigned work order");
+        return;
+      }
+
+      if (action === "startWork" && !["Open", "Assigned"].includes(workOrder.Status)) {
+        MessageToast.show("Only open or assigned work orders can be started");
+        return;
+      }
+
+      if (action === "completeWork" && workOrder.Status !== "InProgress") {
+        MessageToast.show("Only in-progress work orders can be completed");
+        return;
+      }
+
+      await this._postJson(`/odata/v4/work-order/${action}`, {
+        workOrderNo: workOrderNo
+      });
+      MessageToast.show(action === "startWork" ? "Work started" : "Work completed");
+      await this._loadTechnicianSummary();
     },
 
     _getJson: async function (url) {

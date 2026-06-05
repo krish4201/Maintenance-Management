@@ -26,6 +26,18 @@ module.exports = cds.service.impl(async function () {
 
         }
 
+        if(
+            userInfo.role === 'Planner' &&
+            req.query?.SELECT?.one
+        ){
+
+            req.reject(
+                403,
+                'Planner cannot open work order object page'
+            )
+
+        }
+
     }
 )
 
@@ -41,8 +53,7 @@ this.before(
             )
 
         if(
-            userInfo.role !== 'Planner' &&
-            userInfo.role !== 'Supervisor'
+            userInfo.role !== 'Planner'
         ){
 
             req.reject(
@@ -62,7 +73,7 @@ this.before(
 
         req.data.Status =
             req.data.Status ||
-            'Created'
+            'Open'
 
         req.data.CreatedBy =
             req.data.CreatedBy ||
@@ -71,6 +82,9 @@ this.before(
         req.data.CreatedAt =
             req.data.CreatedAt ||
             new Date()
+
+        delete req.data.AssignedTo
+        delete req.data.AssignedName
 
     }
 )
@@ -161,6 +175,42 @@ this.on(
 
         }
 
+        const current =
+            await SELECT.one
+            .from(WorkOrders)
+            .where({
+
+                WorkOrderNo:
+                    req.data.workOrderNo,
+
+                AssignedTo:
+                    userInfo.userId
+
+            })
+
+        if(!current){
+
+            req.reject(
+                404,
+                'Assigned work order not found'
+            )
+
+        }
+
+        if(
+            ![
+                'Open',
+                'Assigned'
+            ].includes(current.Status)
+        ){
+
+            req.reject(
+                400,
+                'Only open or assigned work orders can be started'
+            )
+
+        }
+
         await UPDATE(
             WorkOrders
         )
@@ -200,6 +250,37 @@ this.on(
             req.reject(
                 403,
                 'Only Technician'
+            )
+
+        }
+
+        const current =
+            await SELECT.one
+            .from(WorkOrders)
+            .where({
+
+                WorkOrderNo:
+                    req.data.workOrderNo,
+
+                AssignedTo:
+                    userInfo.userId
+
+            })
+
+        if(!current){
+
+            req.reject(
+                404,
+                'Assigned work order not found'
+            )
+
+        }
+
+        if(current.Status !== 'InProgress'){
+
+            req.reject(
+                400,
+                'Only in-progress work orders can be completed'
             )
 
         }

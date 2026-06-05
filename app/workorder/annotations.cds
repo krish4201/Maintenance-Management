@@ -5,6 +5,7 @@ annotate service.WorkOrders with {
     EquipmentID   @Common.Label : 'Equipment ID';
     EquipmentName @Common.Label : 'Equipment';
     ProcedureID   @Common.Label : 'Procedure ID';
+    MaintenanceType @Common.Label : 'Maintenance Type';
     ProcedureName @Common.Label : 'Procedure';
     AssignedTo    @Common.Label : 'Technician ID';
     AssignedName  @Common.Label : 'Technician';
@@ -26,9 +27,10 @@ annotate service.WorkOrders with @(
     UI.SelectionFields : [
         Status,
         Priority,
+        MaintenanceType,
         EquipmentName,
         AssignedName,
-        DueDate
+        ProcedureID
     ],
     UI.LineItem : [
         {
@@ -43,8 +45,13 @@ annotate service.WorkOrders with @(
         },
         {
             $Type : 'UI.DataField',
-            Label : 'Procedure',
-            Value : ProcedureName
+            Label : 'Procedure ID',
+            Value : ProcedureID
+        },
+        {
+            $Type : 'UI.DataField',
+            Label : 'Maintenance Type',
+            Value : MaintenanceType
         },
         {
             $Type : 'UI.DataField',
@@ -73,8 +80,7 @@ annotate service.WorkOrders with @(
             { $Type : 'UI.DataField', Value : WorkOrderNo },
             { $Type : 'UI.DataField', Value : Priority },
             { $Type : 'UI.DataField', Value : Status },
-            { $Type : 'UI.DataField', Value : DueDate },
-            { $Type : 'UI.DataField', Value : Description }
+            { $Type : 'UI.DataField', Value : MaintenanceType }
         ]
     },
     UI.FieldGroup #Equipment : {
@@ -82,8 +88,7 @@ annotate service.WorkOrders with @(
         Data  : [
             { $Type : 'UI.DataField', Value : EquipmentID },
             { $Type : 'UI.DataField', Value : EquipmentName },
-            { $Type : 'UI.DataField', Value : ProcedureID },
-            { $Type : 'UI.DataField', Value : ProcedureName }
+            { $Type : 'UI.DataField', Value : ProcedureID }
         ]
     },
     UI.FieldGroup #Assignment : {

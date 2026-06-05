@@ -26,6 +26,16 @@ sap.ui.define([
           AssignedTo: "",
           AssignedName: ""
         },
+        assign: {
+          WorkOrderNo: "",
+          TechnicianId: "",
+          TechnicianName: ""
+        },
+        selectedWorkOrder: "",
+        equipments: [],
+        workOrders: [],
+        technicians: [],
+        procedureList: [],
         supervisor: false,
         planner: false,
         technician: false,

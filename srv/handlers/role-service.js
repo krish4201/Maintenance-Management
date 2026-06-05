@@ -34,4 +34,28 @@ cds.service.impl(function(){
         }
     )
 
+    this.on(
+        'getTechnicians',
+        async () => {
+
+            const userSrv =
+                await cds.connect.to('UserService')
+
+            const users =
+                await userSrv.run(
+                    SELECT.from(userSrv.entities.UserSet)
+                )
+
+            return users
+                .filter(user =>
+                    String(user.Role || '').toUpperCase().includes('TECHNICIAN')
+                )
+                .map(user => ({
+                    userId: user.UserId,
+                    userName: user.UserName
+                }))
+
+        }
+    )
+
 })
