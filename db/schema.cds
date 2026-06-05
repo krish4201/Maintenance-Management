@@ -1,6 +1,7 @@
 namespace maintenance;
 
 type Status : String enum {
+    Open;
     Created;
     Assigned;
     InProgress;
@@ -20,6 +21,8 @@ entity WorkOrders {
     EquipmentName     : String(100);
 
     ProcedureID       : String(30);
+
+    MaintenanceType   : String(40);
 
     ProcedureName     : String(100);
 

@@ -15,6 +15,17 @@ sap.ui.define([
         summary: {},
         statusChart: [],
         priorityChart: [],
+        assignedCount: 0,
+        create: {
+          EquipmentID: "",
+          EquipmentName: "",
+          ProcedureID: "",
+          MaintenanceType: "Preventive Maintenance",
+          Priority: "Medium",
+          Status: "Open",
+          AssignedTo: "",
+          AssignedName: ""
+        },
         supervisor: false,
         planner: false,
         technician: false,

@@ -30,7 +30,7 @@ sap.ui.define([
         this._model.setProperty("/technician", role === "Technician");
 
         if (role === "Technician") {
-          this.onOpenWorkOrders();
+          await this._loadTechnicianSummary();
           return;
         }
 
@@ -51,11 +51,40 @@ sap.ui.define([
     },
 
     onCreateWorkOrder: function () {
-      window.location.href = WORK_ORDER_APP;
+      this._resetCreateForm();
+      this.byId("createWorkOrderDialog").open();
     },
 
     onCreateEquipment: function () {
       window.location.href = EQUIPMENT_APP;
+    },
+
+    onCancelCreateWorkOrder: function () {
+      this.byId("createWorkOrderDialog").close();
+    },
+
+    onSubmitWorkOrder: async function () {
+      const payload = Object.assign({}, this._model.getProperty("/create"));
+      const role = this._model.getProperty("/role");
+
+      if (!payload.EquipmentID || !payload.EquipmentName || !payload.ProcedureID) {
+        MessageToast.show("Enter equipment and procedure details");
+        return;
+      }
+
+      if (role !== "Supervisor") {
+        delete payload.AssignedTo;
+        delete payload.AssignedName;
+      }
+
+      try {
+        await this._postJson("/odata/v4/work-order/WorkOrders", payload);
+        MessageToast.show("Work order created");
+        this.byId("createWorkOrderDialog").close();
+        this.onOpenWorkOrders();
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to create work order");
+      }
     },
 
     _loadDashboard: async function (role) {
@@ -101,6 +130,11 @@ sap.ui.define([
       }
     },
 
+    _loadTechnicianSummary: async function () {
+      const count = await this._getText("/odata/v4/work-order/WorkOrders/$count");
+      this._setProperty("/assignedCount", Number(count) || 0);
+    },
+
     _getJson: async function (url) {
       const response = await fetch(url, {
         headers: {
@@ -114,6 +148,51 @@ sap.ui.define([
       }
 
       return response.json();
+    },
+
+    _getText: async function (url) {
+      const response = await fetch(url, {
+        headers: {
+          "Accept": "text/plain"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      return response.text();
+    },
+
+    _postJson: async function (url, payload) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        MessageToast.show("Create failed");
+        throw new Error(await response.text());
+      }
+
+      return response.json();
+    },
+
+    _resetCreateForm: function () {
+      this._setProperty("/create", {
+        EquipmentID: "",
+        EquipmentName: "",
+        ProcedureID: "",
+        MaintenanceType: "Preventive Maintenance",
+        Priority: "Medium",
+        Status: "Open",
+        AssignedTo: "",
+        AssignedName: ""
+      });
     },
 
     _setProperty: function (path, value) {

@@ -85,6 +85,18 @@
   justify-content: center;
 }
 
+.createForm {
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.assignmentFields {
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #d5dadd;
+}
+
 @media (max-width: 640px) {
   .homeContent {
     padding: 0.75rem;

@@ -2,6 +2,7 @@
   controllerName="maintenance.home.controller.App"
   displayBlock="true"
   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns:viz="sap.viz.ui5.controls"
   xmlns:viz.data="sap.viz.ui5.data"
@@ -170,10 +171,76 @@
         <VBox
           visible="{home>/technician}"
           class="homeContent technicianPanel">
-          <Title text="Technician Workspace" level="H2" />
-          <Text text="Opening assigned work orders..." />
+          <VBox class="heroBand">
+            <HBox class="heroHeader" alignItems="Center" justifyContent="SpaceBetween">
+              <VBox>
+                <Title text="Technician Workspace" level="H2" />
+                <Text text="Work orders assigned to you" class="heroSubtitle" />
+              </VBox>
+            </HBox>
+          </VBox>
+          <FlexBox class="linkGrid" wrap="Wrap" renderType="Bare">
+            <GenericTile
+              header="Assigned to Me"
+              subheader="Open my work order list"
+              press=".onOpenWorkOrders">
+              <TileContent>
+                <NumericContent icon="sap-icon://employee-approvals" value="{home>/assignedCount}" />
+              </TileContent>
+            </GenericTile>
+          </FlexBox>
         </VBox>
       </content>
+      <dependents>
+        <Dialog
+          id="createWorkOrderDialog"
+          title="Create Work Order"
+          contentWidth="34rem">
+          <content>
+            <VBox class="createForm">
+              <Label text="Equipment ID" required="true" />
+              <Input value="{home>/create/EquipmentID}" placeholder="EQ001" />
+
+              <Label text="Equipment Name" required="true" />
+              <Input value="{home>/create/EquipmentName}" placeholder="Pump A" />
+
+              <Label text="Procedure ID" required="true" />
+              <Input value="{home>/create/ProcedureID}" placeholder="MP001" />
+
+              <Label text="Maintenance Type" required="true" />
+              <Select selectedKey="{home>/create/MaintenanceType}" width="100%">
+                <core:Item key="Preventive Maintenance" text="Preventive Maintenance" />
+                <core:Item key="Breakdown Maintenance" text="Breakdown Maintenance" />
+              </Select>
+
+              <Label text="Priority" required="true" />
+              <Select selectedKey="{home>/create/Priority}" width="100%">
+                <core:Item key="Low" text="Low" />
+                <core:Item key="Medium" text="Medium" />
+                <core:Item key="High" text="High" />
+                <core:Item key="Critical" text="Critical" />
+              </Select>
+
+              <Label text="Status" />
+              <Input value="{home>/create/Status}" enabled="false" />
+
+              <VBox visible="{home>/supervisor}" class="assignmentFields">
+                <Label text="Technician ID" />
+                <Input value="{home>/create/AssignedTo}" placeholder="TC002" />
+
+                <Label text="Technician Name" />
+                <Input value="{home>/create/AssignedName}" placeholder="Technician name" />
+              </VBox>
+            </VBox>
+          </content>
+          <beginButton>
+            <Button text="Create" type="Emphasized" icon="sap-icon://accept" press=".onSubmitWorkOrder" />
+          </beginButton>
+          <endButton>
+            <Button text="Cancel" press=".onCancelCreateWorkOrder" />
+          </endButton>
+        </Dialog>
+      </dependents>
     </Page>
   </App>
 </mvc:View>
