@@ -4,8 +4,13 @@ sap.ui.define([
 ], function (Controller, MessageToast) {
   "use strict";
 
-  const WORK_ORDER_APP = "/maintenance.workorder.workorder/index.html";
-  const EQUIPMENT_APP = "/maintenance.equipment.equipment/index.html";
+  const isLocalPreview = window.location.pathname.includes("maintenance.home");
+  const WORK_ORDER_APP = isLocalPreview
+    ? "/maintenance.workorder.workorder/index.html"
+    : "/maintenanceworkorderworkorder/index.html";
+  const EQUIPMENT_APP = isLocalPreview
+    ? "/maintenance.equipment.equipment/index.html"
+    : "/maintenanceequipmentequipment/index.html";
 
   return Controller.extend("maintenance.home.controller.App", {
     onInit: async function () {

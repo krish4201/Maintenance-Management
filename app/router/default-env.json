@@ -3,21 +3,21 @@
     "xsuaa": [
       {
         "credentials": {
-          "apiurl": "https://api.authentication.ap21.hana.ondemand.com",
-          "clientid": "sb-maintenance-management!t121490",
-          "clientsecret": "73f1fba5-529f-4fa7-9909-586b1d39c887$Ji38H2tFF8pPKdSVhvTjHOUhQ2S6hvM8AJWrtUlXNt4=",
+          "tenantmode": "dedicated",
+          "sburl": "https://internal-xsuaa.authentication.ap21.hana.ondemand.com",
+          "subaccountid": "ac6752eb-3d1c-4096-b199-b5d19bbed6ab",
           "credential-type": "binding-secret",
+          "clientid": "sb-maintenance-management!t121490",
+          "xsappname": "maintenance-management!t121490",
+          "clientsecret": "71892035-6652-44ec-9f67-f8f2ab748953$g8X4LiqIpWF772JCMp9R5ecTFCFDqA5uy--Leo1PMKM=",
+          "serviceInstanceId": "a3c3cf7c-e048-43c1-86c7-a162cb576f4a",
+          "url": "https://abb7905ftrial.authentication.ap21.hana.ondemand.com",
+          "uaadomain": "authentication.ap21.hana.ondemand.com",
+          "verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs80zTe9AGQfQeWeLN5f0\nlD2hCv/ILRvpNxgT+apWXYiOVIBSVJFoagLyox3lZB0Fbt4CRAgCruhTyNvEQkFo\ntlZ+U9bvTBFSkPYom/SnOYthOtekcLa02n5A3DZsZmcGEqV+k7MlgXbmaRg4GN4q\njasjpSgPVIdcgBJ1MvomaSSbWMflTeZW2S+InujibFWinTncPHTl6EyFq/herdNM\nCrtBS5q6cs18+bLTheH34ar1lADI1l1RDXfEdHXXInb5ex3OMI9VMtynPkRNvho4\nptQJUYaRnVDyI6CntY3iviZMhFtWqGZUsSw+NZaJAk6yh1BUNWpZzxANE9nf/xKe\nOQIDAQAB\n-----END PUBLIC KEY-----",
+          "apiurl": "https://api.authentication.ap21.hana.ondemand.com",
           "identityzone": "abb7905ftrial",
           "identityzoneid": "ac6752eb-3d1c-4096-b199-b5d19bbed6ab",
-          "sburl": "https://internal-xsuaa.authentication.ap21.hana.ondemand.com",
-          "serviceInstanceId": "f5dfaa54-256a-4857-b5cd-ba62c5f3bf2d",
-          "subaccountid": "ac6752eb-3d1c-4096-b199-b5d19bbed6ab",
           "tenantid": "ac6752eb-3d1c-4096-b199-b5d19bbed6ab",
-          "tenantmode": "dedicated",
-          "uaadomain": "authentication.ap21.hana.ondemand.com",
-          "url": "https://abb7905ftrial.authentication.ap21.hana.ondemand.com",
-          "verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs80zTe9AGQfQeWeLN5f0\nlD2hCv/ILRvpNxgT+apWXYiOVIBSVJFoagLyox3lZB0Fbt4CRAgCruhTyNvEQkFo\ntlZ+U9bvTBFSkPYom/SnOYthOtekcLa02n5A3DZsZmcGEqV+k7MlgXbmaRg4GN4q\njasjpSgPVIdcgBJ1MvomaSSbWMflTeZW2S+InujibFWinTncPHTl6EyFq/herdNM\nCrtBS5q6cs18+bLTheH34ar1lADI1l1RDXfEdHXXInb5ex3OMI9VMtynPkRNvho4\nptQJUYaRnVDyI6CntY3iviZMhFtWqGZUsSw+NZaJAk6yh1BUNWpZzxANE9nf/xKe\nOQIDAQAB\n-----END PUBLIC KEY-----",
-          "xsappname": "maintenance-management!t121490",
           "zoneid": "ac6752eb-3d1c-4096-b199-b5d19bbed6ab"
         }
       }

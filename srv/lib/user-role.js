@@ -12,14 +12,14 @@ async function getUserRole(userId, user){
         const result =
             await userSrv.run(
                 SELECT.one
-                    .from(users.Users)
+                    .from(users.UserSet)
                     .where({
-                        UserID: userId
+                        UserId: userId
                     })
             )
 
         if(result && result.Role){
-            return result.Role
+            return normalizeRole(result.Role)
         }
     } catch (error) {
         cds.log('user-role').warn(
@@ -40,6 +40,10 @@ async function getUserRole(userId, user){
     }
 
     const localRoles = {
+        MP001: 'Planner',
+        MS003: 'Supervisor',
+        TC002: 'Technician',
+        TC004: 'Technician',
         U001: 'Planner',
         U002: 'Supervisor',
         U003: 'Technician',
@@ -53,6 +57,29 @@ async function getUserRole(userId, user){
     throw new Error(
         `User ${userId} not found`
     )
+
+}
+
+function normalizeRole(role){
+
+    const value =
+        String(role || '')
+            .trim()
+            .toUpperCase()
+
+    if(value.includes('SUPERVISOR')){
+        return 'Supervisor'
+    }
+
+    if(value.includes('PLANNER')){
+        return 'Planner'
+    }
+
+    if(value.includes('TECHNICIAN')){
+        return 'Technician'
+    }
+
+    return role
 
 }
 

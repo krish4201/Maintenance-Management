@@ -22,7 +22,7 @@
     },
     {
       "source": "^/$",
-      "target": "/maintenance.home/index.html",
+      "target": "/maintenancehome/index.html",
       "service": "html5-apps-repo-rt",
       "authenticationType": "xsuaa"
     },

@@ -1,8 +1,9 @@
 @cds.external
 service UserService {
-    entity Users {
-        key UserID   : String(50);
-            UserName : String(100);
+    entity UserSet {
+        key UserId   : String(10);
+            UserName : String(40);
+            EmailId  : String(100);
             Role     : String(30);
     }
 }
