@@ -1,5 +1,6 @@
 .homePage {
-  background: #f7f9fb;
+  background:
+    linear-gradient(180deg, #eef4f8 0%, #f7f9fb 18rem, #f7f9fb 100%);
 }
 
 .homeContent {
@@ -10,10 +11,30 @@
   padding: 1rem;
 }
 
-.homeToolbar {
-  padding: 0;
+.heroBand {
+  box-sizing: border-box;
+  width: 100%;
   margin-bottom: 1rem;
-  background: transparent;
+  padding: 1.25rem;
+  border: 1px solid #d5dadd;
+  border-left: 0.25rem solid #0a6ed1;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 0.25rem 1rem rgba(34, 53, 72, 0.08);
+}
+
+.heroHeader {
+  gap: 1rem;
+}
+
+.heroSubtitle {
+  margin-top: 0.25rem;
+  color: #5b6b7a;
+}
+
+.heroActions {
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .kpiGrid,
@@ -24,16 +45,18 @@
 
 .kpiCard {
   box-sizing: border-box;
-  width: 13rem;
-  min-height: 5.5rem;
+  width: 13.5rem;
+  min-height: 6.25rem;
   padding: 1rem;
   border: 1px solid #d5dadd;
   border-radius: 0.5rem;
   background: #fff;
+  box-shadow: 0 0.125rem 0.75rem rgba(34, 53, 72, 0.06);
 }
 
 .kpiCard .sapMObjectNumber {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 1.35rem;
 }
 
 .chartPanel {
@@ -44,10 +67,17 @@
   border: 1px solid #d5dadd;
   border-radius: 0.5rem;
   background: #fff;
+  box-shadow: 0 0.125rem 0.75rem rgba(34, 53, 72, 0.06);
+}
+
+.panelTitle {
+  margin-bottom: 0.75rem;
 }
 
 .linkGrid .sapMGT {
   margin: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.75rem rgba(34, 53, 72, 0.06);
 }
 
 .technicianPanel {
@@ -64,5 +94,14 @@
   .chartPanel {
     width: 100%;
     min-width: 100%;
+  }
+
+  .heroHeader {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .heroActions {
+    width: 100%;
   }
 }

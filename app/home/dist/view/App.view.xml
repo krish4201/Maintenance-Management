@@ -14,7 +14,8 @@
       <headerContent>
         <Button
           text="{home>/role}"
-          type="Transparent"
+          type="Emphasized"
+          icon="sap-icon://person-placeholder"
           enabled="false" />
       </headerContent>
       <content>
@@ -28,42 +29,48 @@
         <VBox
           visible="{home>/supervisor}"
           class="homeContent">
-          <Toolbar class="homeToolbar">
-            <Title text="Supervisor Home" level="H2" />
-            <ToolbarSpacer />
-            <Button
-              text="Create Work Order"
-              type="Emphasized"
-              icon="sap-icon://add"
-              press=".onCreateWorkOrder" />
-            <Button
-              text="Create Equipment"
-              icon="sap-icon://add-equipment"
-              press=".onCreateEquipment" />
-          </Toolbar>
+          <VBox class="heroBand">
+            <HBox class="heroHeader" alignItems="Center" justifyContent="SpaceBetween">
+              <VBox>
+                <Title text="Supervisor Home" level="H2" />
+                <Text text="Work order health, priorities, and equipment coverage" class="heroSubtitle" />
+              </VBox>
+              <HBox class="heroActions">
+                <Button
+                  text="Create Work Order"
+                  type="Emphasized"
+                  icon="sap-icon://add"
+                  press=".onCreateWorkOrder" />
+                <Button
+                  text="Create Equipment"
+                  icon="sap-icon://add-equipment"
+                  press=".onCreateEquipment" />
+              </HBox>
+            </HBox>
+          </VBox>
 
           <FlexBox
             class="kpiGrid"
             wrap="Wrap"
             renderType="Bare">
             <VBox class="kpiCard">
-              <Label text="Work Orders" />
+              <ObjectStatus text="Work Orders" icon="sap-icon://activity-items" />
               <ObjectNumber number="{home>/summary/totalWorkOrders}" emphasized="true" />
             </VBox>
             <VBox class="kpiCard">
-              <Label text="Open" />
+              <ObjectStatus text="Open" icon="sap-icon://pending" state="Warning" />
               <ObjectNumber number="{home>/summary/openWorkOrders}" state="Warning" />
             </VBox>
             <VBox class="kpiCard">
-              <Label text="Assigned" />
+              <ObjectStatus text="Assigned" icon="sap-icon://employee-approvals" state="Information" />
               <ObjectNumber number="{home>/summary/assignedOrders}" state="Information" />
             </VBox>
             <VBox class="kpiCard">
-              <Label text="Completed" />
+              <ObjectStatus text="Completed" icon="sap-icon://sys-enter-2" state="Success" />
               <ObjectNumber number="{home>/summary/completedOrders}" state="Success" />
             </VBox>
             <VBox class="kpiCard">
-              <Label text="Equipment" />
+              <ObjectStatus text="Equipment" icon="sap-icon://machine" />
               <ObjectNumber number="{home>/summary/equipmentCount}" emphasized="true" />
             </VBox>
           </FlexBox>
@@ -73,7 +80,7 @@
             wrap="Wrap"
             renderType="Bare">
             <VBox class="chartPanel">
-              <Title text="Work Orders by Status" level="H3" />
+              <Title text="Work Orders by Status" level="H3" class="panelTitle" />
               <viz:VizFrame
                 id="statusChart"
                 width="100%"
@@ -98,7 +105,7 @@
             </VBox>
 
             <VBox class="chartPanel">
-              <Title text="Work Orders by Priority" level="H3" />
+              <Title text="Work Orders by Priority" level="H3" class="panelTitle" />
               <viz:VizFrame
                 id="priorityChart"
                 width="100%"
@@ -127,15 +134,19 @@
         <VBox
           visible="{home>/planner}"
           class="homeContent">
-          <Toolbar class="homeToolbar">
-            <Title text="Planner Workspace" level="H2" />
-            <ToolbarSpacer />
-            <Button
-              text="Create Work Order"
-              type="Emphasized"
-              icon="sap-icon://add"
-              press=".onCreateWorkOrder" />
-          </Toolbar>
+          <VBox class="heroBand">
+            <HBox class="heroHeader" alignItems="Center" justifyContent="SpaceBetween">
+              <VBox>
+                <Title text="Planner Workspace" level="H2" />
+                <Text text="Create work orders and review equipment context" class="heroSubtitle" />
+              </VBox>
+              <Button
+                text="Create Work Order"
+                type="Emphasized"
+                icon="sap-icon://add"
+                press=".onCreateWorkOrder" />
+            </HBox>
+          </VBox>
           <FlexBox class="linkGrid" wrap="Wrap" renderType="Bare">
             <GenericTile
               header="Work Orders"
