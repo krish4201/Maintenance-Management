@@ -1,0 +1,163 @@
+{
+ "meta": {
+  "creator": "cds-dk 9.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "equipment.SAP__Message": {
+   "kind": "type",
+   "@cds.external": true,
+   "elements": {
+    "code": {
+     "type": "cds.String",
+     "notNull": true
+    },
+    "message": {
+     "type": "cds.String",
+     "notNull": true
+    },
+    "target": {
+     "type": "cds.String"
+    },
+    "additionalTargets": {
+     "items": {
+      "type": "cds.String",
+      "notNull": true
+     }
+    },
+    "transition": {
+     "type": "cds.Boolean",
+     "notNull": true
+    },
+    "numericSeverity": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "notNull": true
+    },
+    "longtextUrl": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "equipment": {
+   "kind": "service",
+   "@cds.external": true,
+   "@Common.ApplyMultiUnitBehaviorForSortingAndFiltering": true,
+   "@Capabilities.FilterFunctions": [
+    "eq",
+    "ne",
+    "gt",
+    "ge",
+    "lt",
+    "le",
+    "and",
+    "or",
+    "contains",
+    "startswith",
+    "endswith",
+    "any",
+    "all"
+   ],
+   "@Capabilities.SupportedFormats": [
+    "application/json",
+    "application/pdf"
+   ],
+   "@PDF.Features.DocumentDescriptionReference": "../../../../default/iwbep/common/0001/$metadata",
+   "@PDF.Features.DocumentDescriptionCollection": "MyDocumentDescriptions",
+   "@PDF.Features.ArchiveFormat": true,
+   "@PDF.Features.Border": true,
+   "@PDF.Features.CoverPage": true,
+   "@PDF.Features.FitToPage": true,
+   "@PDF.Features.FontName": true,
+   "@PDF.Features.FontSize": true,
+   "@PDF.Features.HeaderFooter": true,
+   "@PDF.Features.IANATimezoneFormat": true,
+   "@PDF.Features.Margin": true,
+   "@PDF.Features.Padding": true,
+   "@PDF.Features.ResultSizeDefault": 20000,
+   "@PDF.Features.ResultSizeMaximum": 20000,
+   "@PDF.Features.Signature": true,
+   "@PDF.Features.TextDirectionLayout": true,
+   "@PDF.Features.Treeview": true,
+   "@PDF.Features.UploadToFileShare": true,
+   "@Capabilities.KeyAsSegmentSupported": true,
+   "@Capabilities.AsynchronousRequestsSupported": true
+  },
+  "equipment.ZC_MASTER_EQUIPMENT": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "elements": {
+    "equipment_id": {
+     "key": true,
+     "type": "cds.String",
+     "length": 20,
+     "notNull": true,
+     "@Common.FieldControl": {
+      "#": "Mandatory"
+     }
+    },
+    "equipment_name": {
+     "type": "cds.String",
+     "length": 100,
+     "notNull": true
+    },
+    "equipment_type": {
+     "type": "cds.String",
+     "length": 50,
+     "notNull": true
+    },
+    "manufacturer": {
+     "type": "cds.String",
+     "length": 100,
+     "notNull": true
+    },
+    "model_number": {
+     "type": "cds.String",
+     "length": 50,
+     "notNull": true
+    },
+    "serial_number": {
+     "type": "cds.String",
+     "length": 50,
+     "notNull": true
+    },
+    "location": {
+     "type": "cds.String",
+     "length": 100,
+     "notNull": true
+    },
+    "installation_date": {
+     "type": "cds.Date"
+    },
+    "last_maintenance": {
+     "type": "cds.Date"
+    },
+    "last_maintained_by": {
+     "type": "cds.String",
+     "length": 100,
+     "notNull": true
+    },
+    "status": {
+     "type": "cds.String",
+     "length": 20,
+     "notNull": true
+    },
+    "SAP__Messages": {
+     "items": {
+      "type": "equipment.SAP__Message",
+      "notNull": true
+     }
+    }
+   },
+   "@Common.Label": "Master Equipment Projection",
+   "@Common.Messages": {
+    "=": "SAP__Messages"
+   },
+   "@Capabilities.SearchRestrictions.Searchable": false,
+   "@Capabilities.UpdateRestrictions.DeltaUpdateSupported": true,
+   "@Capabilities.UpdateRestrictions.QueryOptions.SelectSupported": true,
+   "@Capabilities.DeepUpdateSupport.ContentIDSupported": true
+  }
+ }
+}

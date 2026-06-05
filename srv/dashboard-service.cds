@@ -1,0 +1,18 @@
+type DashboardSummary {
+    totalWorkOrders : Integer;
+    openWorkOrders  : Integer;
+    assignedOrders  : Integer;
+    completedOrders : Integer;
+    equipmentCount  : Integer;
+}
+
+type ChartData {
+    label : String;
+    value : Integer;
+}
+
+service DashboardService @(requires: 'authenticated-user') {
+    function getSummary() returns DashboardSummary;
+    function getStatusChart() returns array of ChartData;
+    function getPriorityChart() returns array of ChartData;
+}

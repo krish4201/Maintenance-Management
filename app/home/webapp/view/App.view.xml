@@ -1,0 +1,168 @@
+<mvc:View
+  controllerName="maintenance.home.controller.App"
+  displayBlock="true"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:viz="sap.viz.ui5.controls"
+  xmlns:viz.data="sap.viz.ui5.data"
+  xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
+  <App>
+    <Page
+      title="Maintenance Management"
+      busy="{home>/loading}"
+      class="homePage">
+      <headerContent>
+        <Button
+          text="{home>/role}"
+          type="Transparent"
+          enabled="false" />
+      </headerContent>
+      <content>
+        <MessageStrip
+          text="{home>/error}"
+          type="Error"
+          showIcon="true"
+          visible="{= !!${home>/error} }"
+          class="sapUiSmallMargin" />
+
+        <VBox
+          visible="{home>/supervisor}"
+          class="homeContent">
+          <Toolbar class="homeToolbar">
+            <Title text="Supervisor Home" level="H2" />
+            <ToolbarSpacer />
+            <Button
+              text="Create Work Order"
+              type="Emphasized"
+              icon="sap-icon://add"
+              press=".onCreateWorkOrder" />
+            <Button
+              text="Create Equipment"
+              icon="sap-icon://add-equipment"
+              press=".onCreateEquipment" />
+          </Toolbar>
+
+          <FlexBox
+            class="kpiGrid"
+            wrap="Wrap"
+            renderType="Bare">
+            <VBox class="kpiCard">
+              <Label text="Work Orders" />
+              <ObjectNumber number="{home>/summary/totalWorkOrders}" emphasized="true" />
+            </VBox>
+            <VBox class="kpiCard">
+              <Label text="Open" />
+              <ObjectNumber number="{home>/summary/openWorkOrders}" state="Warning" />
+            </VBox>
+            <VBox class="kpiCard">
+              <Label text="Assigned" />
+              <ObjectNumber number="{home>/summary/assignedOrders}" state="Information" />
+            </VBox>
+            <VBox class="kpiCard">
+              <Label text="Completed" />
+              <ObjectNumber number="{home>/summary/completedOrders}" state="Success" />
+            </VBox>
+            <VBox class="kpiCard">
+              <Label text="Equipment" />
+              <ObjectNumber number="{home>/summary/equipmentCount}" emphasized="true" />
+            </VBox>
+          </FlexBox>
+
+          <FlexBox
+            class="chartGrid"
+            wrap="Wrap"
+            renderType="Bare">
+            <VBox class="chartPanel">
+              <Title text="Work Orders by Status" level="H3" />
+              <viz:VizFrame
+                id="statusChart"
+                width="100%"
+                height="320px"
+                vizType="donut"
+                uiConfig="{applicationSet:'fiori'}">
+                <viz:dataset>
+                  <viz.data:FlattenedDataset data="{home>/statusChart}">
+                    <viz.data:dimensions>
+                      <viz.data:DimensionDefinition name="Status" value="{home>label}" />
+                    </viz.data:dimensions>
+                    <viz.data:measures>
+                      <viz.data:MeasureDefinition name="Orders" value="{home>value}" />
+                    </viz.data:measures>
+                  </viz.data:FlattenedDataset>
+                </viz:dataset>
+                <viz:feeds>
+                  <viz.feeds:FeedItem uid="size" type="Measure" values="Orders" />
+                  <viz.feeds:FeedItem uid="color" type="Dimension" values="Status" />
+                </viz:feeds>
+              </viz:VizFrame>
+            </VBox>
+
+            <VBox class="chartPanel">
+              <Title text="Work Orders by Priority" level="H3" />
+              <viz:VizFrame
+                id="priorityChart"
+                width="100%"
+                height="320px"
+                vizType="column"
+                uiConfig="{applicationSet:'fiori'}">
+                <viz:dataset>
+                  <viz.data:FlattenedDataset data="{home>/priorityChart}">
+                    <viz.data:dimensions>
+                      <viz.data:DimensionDefinition name="Priority" value="{home>label}" />
+                    </viz.data:dimensions>
+                    <viz.data:measures>
+                      <viz.data:MeasureDefinition name="Orders" value="{home>value}" />
+                    </viz.data:measures>
+                  </viz.data:FlattenedDataset>
+                </viz:dataset>
+                <viz:feeds>
+                  <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Orders" />
+                  <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Priority" />
+                </viz:feeds>
+              </viz:VizFrame>
+            </VBox>
+          </FlexBox>
+        </VBox>
+
+        <VBox
+          visible="{home>/planner}"
+          class="homeContent">
+          <Toolbar class="homeToolbar">
+            <Title text="Planner Workspace" level="H2" />
+            <ToolbarSpacer />
+            <Button
+              text="Create Work Order"
+              type="Emphasized"
+              icon="sap-icon://add"
+              press=".onCreateWorkOrder" />
+          </Toolbar>
+          <FlexBox class="linkGrid" wrap="Wrap" renderType="Bare">
+            <GenericTile
+              header="Work Orders"
+              subheader="Create and review maintenance work"
+              press=".onOpenWorkOrders">
+              <TileContent>
+                <NumericContent icon="sap-icon://activity-items" value="{home>/summary/totalWorkOrders}" />
+              </TileContent>
+            </GenericTile>
+            <GenericTile
+              header="Master Equipment"
+              subheader="Review equipment master data"
+              press=".onOpenEquipment">
+              <TileContent>
+                <NumericContent icon="sap-icon://machine" value="{home>/summary/equipmentCount}" />
+              </TileContent>
+            </GenericTile>
+          </FlexBox>
+        </VBox>
+
+        <VBox
+          visible="{home>/technician}"
+          class="homeContent technicianPanel">
+          <Title text="Technician Workspace" level="H2" />
+          <Text text="Opening assigned work orders..." />
+        </VBox>
+      </content>
+    </Page>
+  </App>
+</mvc:View>

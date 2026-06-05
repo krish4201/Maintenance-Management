@@ -1,0 +1,68 @@
+.homePage {
+  background: #f7f9fb;
+}
+
+.homeContent {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.homeToolbar {
+  padding: 0;
+  margin-bottom: 1rem;
+  background: transparent;
+}
+
+.kpiGrid,
+.chartGrid,
+.linkGrid {
+  gap: 1rem;
+}
+
+.kpiCard {
+  box-sizing: border-box;
+  width: 13rem;
+  min-height: 5.5rem;
+  padding: 1rem;
+  border: 1px solid #d5dadd;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.kpiCard .sapMObjectNumber {
+  margin-top: 0.5rem;
+}
+
+.chartPanel {
+  box-sizing: border-box;
+  flex: 1 1 28rem;
+  min-width: 20rem;
+  padding: 1rem;
+  border: 1px solid #d5dadd;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.linkGrid .sapMGT {
+  margin: 0;
+}
+
+.technicianPanel {
+  min-height: 10rem;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .homeContent {
+    padding: 0.75rem;
+  }
+
+  .kpiCard,
+  .chartPanel {
+    width: 100%;
+    min-width: 100%;
+  }
+}

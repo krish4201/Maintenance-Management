@@ -1,0 +1,75 @@
+{
+  "name": "maintenance-management",
+  "version": "1.0.0",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap-cloud-sdk/connectivity": "^4.7.0",
+    "@sap-cloud-sdk/http-client": "^4.7.0",
+    "@sap-cloud-sdk/resilience": "^4",
+    "@sap/cds": "^9",
+    "@sap/xsenv": "^6.2.1",
+    "@sap/xssec": "^4",
+    "@ui5/cli": "^4.0.55",
+    "passport": "^0.7.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.4",
+    "@sap/cds-dk": "^9",
+    "cds-plugin-ui5": "^0.13.0",
+    "mbt": "^1.2.49",
+    "rimraf": "^5.0.5"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-workorder": "cds watch --open maintenance.workorder.workorder/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "undeploy": "cf undeploy maintenance-management --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+    "watch-equipment": "cds watch --open maintenance.equipment.equipment/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-home": "cds watch --open maintenance.home/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "[hybrid]": {
+        "auth": "xsuaa"
+      },
+      "equipment": {
+        "kind": "odata-v4",
+        "model": "srv/external/equipment",
+        "credentials": {
+          "destination": "EQUIPMENT_DEST"
+        }
+      },
+      "procedure": {
+        "kind": "odata-v2",
+        "model": "srv/external/procedure",
+        "credentials": {
+          "destination": "EQUIPMENT_DEST"
+        }
+      },
+      "UserService": {
+        "kind": "odata-v2",
+        "model": "srv/external/user-service",
+        "credentials": {
+          "destination": "USER_DEST"
+        }
+      },
+      "__equipment": {
+        "kind": "odata",
+        "model": "srv/external/2_equipment"
+      },
+      "[production]": {
+        "auth": "xsuaa"
+      }
+    }
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/home",
+    "app/workorder",
+    "app/equipment"
+  ]
+}

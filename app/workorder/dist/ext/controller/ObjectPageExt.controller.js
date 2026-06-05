@@ -1,0 +1,2 @@
+sap.ui.define(["sap/ui/core/mvc/ControllerExtension"],function(e){"use strict";return e.extend("maintenance.workorder.ext.controller.ObjectPageExt",{override:{onInit:async function(){const e=await this._getRole();if(e!=="Supervisor"){const e=this.byId("assignTechnician");if(e){e.setVisible(false)}}}},_getRole:async function(){const e=await fetch("/odata/v4/role/getUserInfo()",{headers:{Accept:"application/json"}});if(!e.ok){return""}const t=await e.json();return t.role||""}})});
+//# sourceMappingURL=ObjectPageExt.controller.js.map

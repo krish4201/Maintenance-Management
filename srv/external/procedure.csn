@@ -1,0 +1,755 @@
+{
+ "meta": {
+  "creator": "cds-dk 9.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "procedure": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx pdf"
+  },
+  "procedure.ZI_MAINT_PROC": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "1",
+   "@sap.deletable.path": "Delete_mc",
+   "@sap.updatable.path": "Update_mc",
+   "@sap.label": "Maintenance Procedure",
+   "elements": {
+    "EquipmentID": {
+     "key": true,
+     "type": "cds.String",
+     "length": 10,
+     "notNull": true
+    },
+    "Delete_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "Update_mc": {
+     "type": "cds.Boolean",
+     "@sap.label": "Dyn. Method Control",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false"
+    },
+    "EquipmentName": {
+     "type": "cds.String",
+     "length": 50
+    },
+    "EquipmentType": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "MaintenanceCategory": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "MaintenanceProcedure": {
+     "type": "cds.String",
+     "length": 255
+    }
+   }
+  },
+  "procedure.SAP__Currencies": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "1",
+   "elements": {
+    "CurrencyCode": {
+     "key": true,
+     "type": "cds.String",
+     "length": 5,
+     "@sap.label": "Currency",
+     "@sap.semantics": "currency-code",
+     "notNull": true
+    },
+    "ISOCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "ISO code",
+     "notNull": true
+    },
+    "Text": {
+     "type": "cds.String",
+     "length": 15,
+     "@sap.label": "Short Text",
+     "notNull": true
+    },
+    "DecimalPlaces": {
+     "type": "cds.Integer",
+     "@odata.Type": "Edm.Byte",
+     "@sap.label": "Decimals",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__UnitsOfMeasure": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "1",
+   "elements": {
+    "UnitCode": {
+     "key": true,
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Internal UoM",
+     "@sap.semantics": "unit-of-measure",
+     "notNull": true
+    },
+    "ISOCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "ISO Code",
+     "notNull": true
+    },
+    "ExternalCode": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.label": "Commercial",
+     "notNull": true
+    },
+    "Text": {
+     "type": "cds.String",
+     "length": 30,
+     "@sap.label": "Meas. Unit Text",
+     "notNull": true
+    },
+    "DecimalPlaces": {
+     "type": "cds.Integer",
+     "@sap.label": "Decimal Places"
+    }
+   }
+  },
+  "procedure.SAP__MyDocumentDescriptions": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "notNull": true
+    },
+    "CreatedBy": {
+     "type": "cds.String",
+     "length": 12,
+     "notNull": true
+    },
+    "CreatedAt": {
+     "type": "cds.DateTime",
+     "@odata.Type": "Edm.DateTime",
+     "@sap.label": "Time Stamp",
+     "notNull": true
+    },
+    "FileName": {
+     "type": "cds.String",
+     "length": 256,
+     "notNull": true
+    },
+    "Title": {
+     "type": "cds.String",
+     "length": 256,
+     "notNull": true
+    },
+    "Format": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__FormatSet",
+     "keys": []
+    },
+    "FileShare": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__FileShareSet",
+     "keys": []
+    },
+    "TableColumns": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__TableColumnsSet",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "CoverPage": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__CoverPageSet",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    },
+    "Signature": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__SignatureSet",
+     "keys": []
+    },
+    "PDFStandard": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__PDFStandardSet",
+     "keys": []
+    },
+    "Hierarchy": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__HierarchySet",
+     "keys": []
+    },
+    "Header": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__PDFHeaderSet",
+     "keys": []
+    },
+    "Footer": {
+     "type": "cds.Association",
+     "target": "procedure.SAP__PDFFooterSet",
+     "keys": []
+    }
+   }
+  },
+  "procedure.SAP__FileShareSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Repository": {
+     "type": "cds.String",
+     "length": 100,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Folder": {
+     "type": "cds.String",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__FormatSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "FitToPage": {
+     "type": "procedure.SAP__FitToPage",
+     "notNull": true
+    },
+    "FontSize": {
+     "type": "cds.Integer",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Orientation": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "PaperSize": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "BorderSize": {
+     "type": "cds.Integer",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "MarginSize": {
+     "type": "cds.Integer",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "FontName": {
+     "type": "cds.String",
+     "length": 255,
+     "@sap.label": "Font Name",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Padding": {
+     "type": "cds.Integer",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "TextDirectionLayout": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__PDFStandardSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "UsePDFAConformance": {
+     "type": "cds.Boolean",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "DoEnableAccessibility": {
+     "type": "cds.Boolean",
+     "@sap.label": "Indicator",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__TableColumnsSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Name": {
+     "key": true,
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Header": {
+     "key": true,
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Format": {
+     "type": "procedure.SAP__TableColumnFormat",
+     "notNull": true
+    },
+    "HorizontalAlignment": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__CoverPageSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Title": {
+     "key": true,
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Name": {
+     "key": true,
+     "type": "cds.String",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Value": {
+     "type": "cds.String",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__SignatureSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "DoSign": {
+     "type": "cds.Boolean",
+     "@sap.label": "Indicator",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Reason": {
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__HierarchySet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "DistanceFromRootElement": {
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "DrillStateElement": {
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__PDFHeaderSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Right": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    },
+    "Left": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    },
+    "Center": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__PDFFooterSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.pageable": "false",
+   "@sap.addressable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Id": {
+     "key": true,
+     "type": "cds.UUID",
+     "@sap.label": "UUID",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "Right": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    },
+    "Left": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    },
+    "Center": {
+     "type": "procedure.SAP__HeaderFooterField",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__ValueHelpSet": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.content.version": "1",
+   "elements": {
+    "VALUEHELP": {
+     "key": true,
+     "type": "cds.String",
+     "notNull": true
+    },
+    "FIELD_VALUE": {
+     "type": "cds.String",
+     "length": 10,
+     "notNull": true
+    },
+    "DESCRIPTION": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "procedure.SAP__FitToPage": {
+   "kind": "type",
+   "@cds.external": true,
+   "elements": {
+    "ErrorRecoveryBehavior": {
+     "type": "cds.String",
+     "length": 8,
+     "@sap.label": "Error behavior",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "IsEnabled": {
+     "type": "cds.Boolean",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "MinimumFontSize": {
+     "type": "cds.Integer",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__TableColumnFormat": {
+   "kind": "type",
+   "@cds.external": true,
+   "elements": {
+    "DisplayFormat": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "IANATimezone": {
+     "type": "cds.String",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    },
+    "IANATimezoneProperty": {
+     "type": "cds.String",
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  },
+  "procedure.SAP__HeaderFooterField": {
+   "kind": "type",
+   "@cds.external": true,
+   "elements": {
+    "Type": {
+     "type": "cds.String",
+     "length": 256,
+     "@sap.creatable": "false",
+     "@sap.updatable": "false",
+     "@sap.sortable": "false",
+     "@sap.filterable": "false",
+     "notNull": true
+    }
+   }
+  }
+ }
+}
