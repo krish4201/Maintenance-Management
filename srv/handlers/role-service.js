@@ -10,11 +10,19 @@ cds.service.impl(function(){
         'getUserInfo',
         async req => {
 
-            const role =
-                await getUserRole(
-                    req.user.id,
-                    req.user
+            let role = 'Unknown'
+
+            try {
+                role =
+                    await getUserRole(
+                        req.user.id,
+                        req.user
+                    )
+            } catch (error) {
+                cds.log('role-service').warn(
+                    `Unable to resolve role for ${req.user.id}`
                 )
+            }
 
             return {
 

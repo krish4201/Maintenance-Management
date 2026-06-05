@@ -13,9 +13,13 @@ sap.ui.define([
     : "/maintenanceequipmentequipment/index.html";
 
   return Controller.extend("maintenance.home.controller.App", {
-    onInit: async function () {
+    onInit: function () {
       this._model = this.getOwnerComponent().getModel("home");
 
+      this._initialize();
+    },
+
+    _initialize: async function () {
       try {
         const user = await this._getJson("/odata/v4/role/getUserInfo()");
         const role = user.role || "";
@@ -32,9 +36,9 @@ sap.ui.define([
 
         await this._loadDashboard(role);
       } catch (error) {
-        this._model.setProperty("/error", error.message || "Unable to load home page");
+        this._setProperty("/error", error.message || "Unable to load home page");
       } finally {
-        this._model.setProperty("/loading", false);
+        this._setProperty("/loading", false);
       }
     },
 
@@ -110,6 +114,14 @@ sap.ui.define([
       }
 
       return response.json();
+    },
+
+    _setProperty: function (path, value) {
+      const model = this._model || this.getOwnerComponent().getModel("home");
+
+      if (model) {
+        model.setProperty(path, value);
+      }
     }
   });
 });

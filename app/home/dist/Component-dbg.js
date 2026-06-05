@@ -10,8 +10,6 @@ sap.ui.define([
     },
 
     init: function () {
-      UIComponent.prototype.init.apply(this, arguments);
-
       this.setModel(new JSONModel({
         role: "",
         summary: {},
@@ -23,6 +21,8 @@ sap.ui.define([
         loading: true,
         error: ""
       }), "home");
+
+      UIComponent.prototype.init.apply(this, arguments);
     }
   });
 });

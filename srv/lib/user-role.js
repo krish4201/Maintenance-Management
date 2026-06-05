@@ -10,12 +10,11 @@ async function getUserRole(userId, user){
             userSrv.entities
 
         const result =
-            await userSrv.run(
-                SELECT.one
-                    .from(users.UserSet)
-                    .where({
-                        UserId: userId
-                    })
+            await findUser(
+                userSrv,
+                users.UserSet,
+                userId,
+                user
             )
 
         if(result && result.Role){
@@ -40,6 +39,11 @@ async function getUserRole(userId, user){
     }
 
     const localRoles = {
+        ALMAYUX20: 'Supervisor',
+        'RKKRAMESH2001@GMAIL.COM': 'Supervisor',
+        'REVATHIREDDY797@GMAIL.COM': 'Planner',
+        'RAKSHITHAG79799@GMAIL.COM': 'Technician',
+        'VISHUNYK108@GMAIL.COM': 'Technician',
         MP001: 'Planner',
         MS003: 'Supervisor',
         TC002: 'Technician',
@@ -50,8 +54,16 @@ async function getUserRole(userId, user){
         U004: 'Technician'
     }
 
-    if(localRoles[userId]){
-        return localRoles[userId]
+    const localRoleKeys =
+        [
+            userId,
+            getUserEmail(user)
+        ].filter(Boolean).map(normalizeValue)
+
+    for(const key of localRoleKeys){
+        if(localRoles[key]){
+            return localRoles[key]
+        }
     }
 
     throw new Error(
@@ -60,12 +72,62 @@ async function getUserRole(userId, user){
 
 }
 
+async function findUser(userSrv, UserSet, userId, user){
+
+    const allUsers =
+        await userSrv.run(
+            SELECT.from(UserSet)
+        )
+
+    const email =
+        getUserEmail(user) ||
+        (
+            String(userId || '').includes('@')
+                ? userId
+                : null
+        )
+
+    if(email){
+        const normalizedEmail =
+            normalizeValue(email)
+
+        const byEmail =
+            allUsers.find(entry =>
+                normalizeValue(entry.EmailId) === normalizedEmail
+            )
+
+        if(byEmail){
+            return byEmail
+        }
+    }
+
+    const lookupValues =
+        new Set([
+            userId,
+            user?.attr?.user_name,
+            user?.attr?.login_name,
+            user?.attr?.name
+        ].filter(Boolean).map(normalizeValue))
+
+    return allUsers.find(entry =>
+        lookupValues.has(normalizeValue(entry.UserId))
+    ) || null
+
+}
+
+function getUserEmail(user){
+
+    return user?.attr?.email ||
+        user?.attr?.mail ||
+        user?.attr?.Email ||
+        user?.attr?.EmailId
+
+}
+
 function normalizeRole(role){
 
     const value =
-        String(role || '')
-            .trim()
-            .toUpperCase()
+        normalizeValue(role)
 
     if(value.includes('SUPERVISOR')){
         return 'Supervisor'
@@ -80,6 +142,14 @@ function normalizeRole(role){
     }
 
     return role
+
+}
+
+function normalizeValue(value){
+
+    return String(value || '')
+        .trim()
+        .toUpperCase()
 
 }
 
