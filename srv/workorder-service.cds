@@ -1,12 +1,13 @@
-using maintenance from '../db/schema';
+
+using { workorder } from './external/workorder';
 
 service WorkOrderService @(requires: 'authenticated-user') {
 
 
-    entity WorkOrders    as projection on maintenance.WorkOrders;
+    entity WorkOrders    as projection on workorder.WorkOrders;
 
 
-    entity StatusHistory as projection on maintenance.StatusHistory;
+    entity StatusHistory as projection on workorder.StatusHistory;
 
     action assignTechnician(workOrderNo: String,
                             technicianId: String,

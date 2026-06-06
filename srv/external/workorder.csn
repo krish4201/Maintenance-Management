@@ -1,0 +1,196 @@
+{
+ "meta": {
+  "creator": "cds-dk 9.9.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "workorder.assignTechnician": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "workOrderNo": {
+     "type": "cds.String"
+    },
+    "technicianId": {
+     "type": "cds.String"
+    },
+    "technicianName": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "workorder.updateStatus": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "workOrderNo": {
+     "type": "cds.String"
+    },
+    "status": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "workorder.startWork": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "workOrderNo": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "workorder.completeWork": {
+   "kind": "action",
+   "@cds.external": true,
+   "params": {
+    "workOrderNo": {
+     "type": "cds.String"
+    }
+   }
+  },
+  "workorder.WorkOrders": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "elements": {
+    "ID": {
+     "key": true,
+     "type": "cds.UUID",
+     "notNull": true,
+     "@Core.ComputedDefaultValue": true
+    },
+    "WorkOrderNo": {
+     "type": "cds.String",
+     "length": 20
+    },
+    "EquipmentID": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "EquipmentName": {
+     "type": "cds.String",
+     "length": 100
+    },
+    "ProcedureID": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "MaintenanceType": {
+     "type": "cds.String",
+     "length": 40
+    },
+    "ProcedureName": {
+     "type": "cds.String",
+     "length": 100
+    },
+    "AssignedTo": {
+     "type": "cds.String",
+     "length": 50
+    },
+    "AssignedName": {
+     "type": "cds.String",
+     "length": 100
+    },
+    "Priority": {
+     "type": "cds.String",
+     "length": 20
+    },
+    "Description": {
+     "type": "cds.String",
+     "length": 500
+    },
+    "Status": {
+     "type": "cds.String",
+     "@Validation.AllowedValues": [
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Open",
+       "Value": "Open"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Created",
+       "Value": "Created"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Assigned",
+       "Value": "Assigned"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "InProgress",
+       "Value": "InProgress"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Completed",
+       "Value": "Completed"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Closed",
+       "Value": "Closed"
+      },
+      {
+       "$Type": "Validation.AllowedValue",
+       "@Core.SymbolicName": "Cancelled",
+       "Value": "Cancelled"
+      }
+     ]
+    },
+    "CreatedBy": {
+     "type": "cds.String",
+     "length": 50
+    },
+    "CreatedAt": {
+     "type": "cds.Timestamp",
+     "@odata.Precision": 7,
+     "@odata.Type": "Edm.DateTimeOffset"
+    },
+    "DueDate": {
+     "type": "cds.Date"
+    }
+   }
+  },
+  "workorder.StatusHistory": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "elements": {
+    "ID": {
+     "key": true,
+     "type": "cds.UUID",
+     "notNull": true,
+     "@Core.ComputedDefaultValue": true
+    },
+    "WorkOrderNo": {
+     "type": "cds.String",
+     "length": 20
+    },
+    "OldStatus": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "NewStatus": {
+     "type": "cds.String",
+     "length": 30
+    },
+    "ChangedBy": {
+     "type": "cds.String",
+     "length": 50
+    },
+    "ChangedAt": {
+     "type": "cds.Timestamp",
+     "@odata.Precision": 7,
+     "@odata.Type": "Edm.DateTimeOffset"
+    }
+   }
+  },
+  "workorder": {
+   "kind": "service",
+   "@cds.external": true
+  }
+ }
+}

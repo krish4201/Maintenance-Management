@@ -55,6 +55,13 @@
           "destination": "USER_DEST"
         }
       },
+      "workorder": {
+        "kind": "odata-v4",
+        "model": "srv/external/workorder",
+        "credentials": {
+          "destination": "WORKORDER_DEST"
+        }
+      },
       "__equipment": {
         "kind": "odata",
         "model": "srv/external/2_equipment"
