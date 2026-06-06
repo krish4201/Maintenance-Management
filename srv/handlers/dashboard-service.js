@@ -2,7 +2,8 @@ const cds = require("@sap/cds");
 const { getUserRole } = require("../lib/user-role");
 
 module.exports = cds.service.impl(async function () {
-  const { WorkOrders } = cds.entities("maintenance");
+  const workorderSrv = await cds.connect.to("workorder");
+  const { WorkOrders } = workorderSrv.entities;
 
   this.before("*", async (req) => {
     const role = await getUserRole(req.user.id, req.user);
@@ -13,13 +14,15 @@ module.exports = cds.service.impl(async function () {
   });
 
   this.on("getSummary", async () => {
-    const orders = await SELECT.from(WorkOrders).columns("Status");
+    const orders = await workorderSrv.run(
+      SELECT.from(WorkOrders).columns("Status")
+    );
     const equipmentCount = await countEquipments();
 
     return {
       totalWorkOrders: orders.length,
       openWorkOrders: orders.filter((order) =>
-        ["Created", "Assigned", "InProgress"].includes(order.Status)
+        ["Open", "Created", "Assigned", "InProgress"].includes(order.Status)
       ).length,
       assignedOrders: orders.filter((order) => order.Status === "Assigned")
         .length,
@@ -30,13 +33,17 @@ module.exports = cds.service.impl(async function () {
   });
 
   this.on("getStatusChart", async () => {
-    const orders = await SELECT.from(WorkOrders).columns("Status");
+    const orders = await workorderSrv.run(
+      SELECT.from(WorkOrders).columns("Status")
+    );
 
     return aggregate(orders, "Status");
   });
 
   this.on("getPriorityChart", async () => {
-    const orders = await SELECT.from(WorkOrders).columns("Priority");
+    const orders = await workorderSrv.run(
+      SELECT.from(WorkOrders).columns("Priority")
+    );
 
     return aggregate(orders, "Priority");
   });
