@@ -45,7 +45,7 @@
         "kind": "odata-v2",
         "model": "srv/external/procedure",
         "credentials": {
-          "destination": "EQUIPMENT_DEST"
+          "destination": "PROCEDURE_DEST"
         }
       },
       "UserService": {
