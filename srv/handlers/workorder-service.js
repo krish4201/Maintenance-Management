@@ -53,7 +53,18 @@ module.exports = cds.service.impl(async function () {
     }
   });
 
-  this.on("UPDATE", "WorkOrders", req => workorderSrv.run(req.query));
+  this.on("UPDATE", "WorkOrders", async req => {
+    const id = req.data.ID || await getIdFromUpdateQuery(req, workorderSrv, WorkOrders);
+
+    if (!id) {
+      req.reject(400, "Work order UUID ID is required for update");
+    }
+
+    const data = Object.assign({}, req.data);
+    delete data.ID;
+
+    return updateWorkOrderById(workorderSrv, WorkOrders, id, data);
+  });
 
   this.on("updateStatus", async req => {
     const { workOrderNo, status } = req.data;
@@ -66,7 +77,7 @@ module.exports = cds.service.impl(async function () {
     const current = await getAssignedWorkOrder(req, workorderSrv, WorkOrders, workOrderNo, userInfo);
 
     await addStatusHistory(workorderSrv, StatusHistory, current, status, userInfo.userId);
-    await updateWorkOrderStatus(workorderSrv, WorkOrders, workOrderNo, status, userInfo.userId);
+    await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, status);
 
     return {
       message: "Status Updated"
@@ -87,7 +98,7 @@ module.exports = cds.service.impl(async function () {
     }
 
     await addStatusHistory(workorderSrv, StatusHistory, current, "InProgress", userInfo.userId);
-    await updateWorkOrderStatus(workorderSrv, WorkOrders, req.data.workOrderNo, "InProgress", userInfo.userId);
+    await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, "InProgress");
 
     return {
       message: "Work started"
@@ -108,7 +119,7 @@ module.exports = cds.service.impl(async function () {
     }
 
     await addStatusHistory(workorderSrv, StatusHistory, current, "Completed", userInfo.userId);
-    await updateWorkOrderStatus(workorderSrv, WorkOrders, req.data.workOrderNo, "Completed", userInfo.userId);
+    await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, "Completed");
 
     return {
       message: "Work completed"
@@ -122,17 +133,13 @@ module.exports = cds.service.impl(async function () {
       req.reject(403, "Only Supervisor");
     }
 
-    await workorderSrv.run(
-      UPDATE(WorkOrders)
-        .set({
-          AssignedTo: req.data.technicianId,
-          AssignedName: req.data.technicianName,
-          Status: "Assigned"
-        })
-        .where({
-          WorkOrderNo: req.data.workOrderNo
-        })
-    );
+    const current = await getWorkOrderByNumber(req, workorderSrv, WorkOrders, req.data.workOrderNo);
+
+    await updateWorkOrderById(workorderSrv, WorkOrders, current.ID, {
+      AssignedTo: req.data.technicianId,
+      AssignedName: req.data.technicianName,
+      Status: "Assigned"
+    });
 
     return {
       message: "Technician assigned"
@@ -144,6 +151,7 @@ async function getAssignedWorkOrder(req, workorderSrv, WorkOrders, workOrderNo, 
   const current = await workorderSrv.run(
     SELECT.one
       .from(WorkOrders)
+      .columns("ID", "WorkOrderNo", "Status")
       .where({
         WorkOrderNo: workOrderNo,
         AssignedTo: userInfo.userId
@@ -155,6 +163,55 @@ async function getAssignedWorkOrder(req, workorderSrv, WorkOrders, workOrderNo, 
   }
 
   return current;
+}
+
+async function getWorkOrderByNumber(req, workorderSrv, WorkOrders, workOrderNo) {
+  const current = await workorderSrv.run(
+    SELECT.one
+      .from(WorkOrders)
+      .columns("ID", "WorkOrderNo", "Status")
+      .where({
+        WorkOrderNo: workOrderNo
+      })
+  );
+
+  if (!current) {
+    req.reject(404, "Work order not found");
+  }
+
+  return current;
+}
+
+async function getIdFromUpdateQuery(req, workorderSrv, WorkOrders) {
+  const id = findWhereValue(req.query?.UPDATE?.where, "ID");
+
+  if (id) {
+    return id;
+  }
+
+  const workOrderNo = findWhereValue(req.query?.UPDATE?.where, "WorkOrderNo");
+
+  if (!workOrderNo) {
+    return null;
+  }
+
+  const current = await getWorkOrderByNumber(req, workorderSrv, WorkOrders, workOrderNo);
+
+  return current.ID;
+}
+
+function findWhereValue(where, field) {
+  if (!Array.isArray(where)) {
+    return null;
+  }
+
+  for (let index = 0; index < where.length - 2; index += 1) {
+    if (where[index]?.ref?.[0] === field && where[index + 1] === "=") {
+      return where[index + 2]?.val || null;
+    }
+  }
+
+  return null;
 }
 
 async function addStatusHistory(workorderSrv, StatusHistory, current, newStatus, changedBy) {
@@ -170,16 +227,15 @@ async function addStatusHistory(workorderSrv, StatusHistory, current, newStatus,
   );
 }
 
-async function updateWorkOrderStatus(workorderSrv, WorkOrders, workOrderNo, status, technicianId) {
+async function updateWorkOrderStatus(workorderSrv, WorkOrders, id, status) {
+  return updateWorkOrderById(workorderSrv, WorkOrders, id, {
+    Status: status
+  });
+}
+
+async function updateWorkOrderById(workorderSrv, WorkOrders, id, data) {
   return workorderSrv.run(
-    UPDATE(WorkOrders)
-      .set({
-        Status: status
-      })
-      .where({
-        WorkOrderNo: workOrderNo,
-        AssignedTo: technicianId
-      })
+    UPDATE(WorkOrders, id).with(data)
   );
 }
 
