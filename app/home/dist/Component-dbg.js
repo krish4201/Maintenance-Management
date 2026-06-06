@@ -32,6 +32,7 @@ sap.ui.define([
           TechnicianName: ""
         },
         selectedWorkOrder: "",
+        equipments: [],
         workOrders: [],
         technicians: [],
         procedureList: [],

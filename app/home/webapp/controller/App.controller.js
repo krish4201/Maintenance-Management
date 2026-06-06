@@ -341,7 +341,9 @@ sap.ui.define([
         throw new Error(await response.text());
       }
 
-      return response.json();
+      const text = await response.text();
+
+      return text ? JSON.parse(text) : {};
     },
 
     _getText: async function (url) {
@@ -373,7 +375,9 @@ sap.ui.define([
         throw new Error(await response.text());
       }
 
-      return response.json();
+      const text = await response.text();
+
+      return text ? JSON.parse(text) : {};
     },
 
     _resetCreateForm: function () {
