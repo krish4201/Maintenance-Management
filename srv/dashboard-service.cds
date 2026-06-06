@@ -4,6 +4,7 @@ type DashboardSummary {
     assignedOrders  : Integer;
     completedOrders : Integer;
     equipmentCount  : Integer;
+    procedureCount  : Integer;
 }
 
 type ChartData {
@@ -13,6 +14,7 @@ type ChartData {
 
 service DashboardService @(requires: 'authenticated-user') {
     function getSummary() returns DashboardSummary;
+    function getAssignedChart() returns array of ChartData;
     function getStatusChart() returns array of ChartData;
     function getPriorityChart() returns array of ChartData;
 }

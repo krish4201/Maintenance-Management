@@ -5,8 +5,12 @@ module.exports = cds.service.impl(async function () {
   const workorderSrv = await cds.connect.to("workorder");
   const { WorkOrders } = workorderSrv.entities;
 
-  this.before("*", async (req) => {
+  this.before("*", async req => {
     const role = await getUserRole(req.user.id, req.user);
+
+    if (req.event === "getSummary" && ["Supervisor", "Planner"].includes(role)) {
+      return;
+    }
 
     if (role !== "Supervisor") {
       req.reject(403, "Only Supervisor");
@@ -17,7 +21,10 @@ module.exports = cds.service.impl(async function () {
     const orders = await workorderSrv.run(
       SELECT.from(WorkOrders).columns("Status")
     );
-    const equipmentCount = await countEquipments();
+    const [equipmentCount, procedureCount] = await Promise.all([
+      countEquipments(),
+      countProcedures()
+    ]);
 
     return {
       totalWorkOrders: orders.length,
@@ -29,7 +36,16 @@ module.exports = cds.service.impl(async function () {
       completedOrders: orders.filter((order) => order.Status === "Completed")
         .length,
       equipmentCount,
+      procedureCount,
     };
+  });
+
+  this.on("getAssignedChart", async () => {
+    const orders = await workorderSrv.run(
+      SELECT.from(WorkOrders).columns("AssignedName", "AssignedTo")
+    );
+
+    return aggregateAssigned(orders);
   });
 
   this.on("getStatusChart", async () => {
@@ -72,4 +88,26 @@ async function countEquipments() {
   } catch (error) {
     return 0;
   }
+}
+
+async function countProcedures() {
+  try {
+    const srv = await cds.connect.to("procedure");
+    const { ZI_MAINT_PROC } = srv.entities;
+    const result = await srv.run(
+      SELECT.one.from(ZI_MAINT_PROC).columns("count(*) as count")
+    );
+
+    return Number(result?.count || 0);
+  } catch (error) {
+    return 0;
+  }
+}
+
+function aggregateAssigned(rows) {
+  const normalized = rows.map(row => ({
+    Assigned: row.AssignedName || row.AssignedTo || "Unassigned"
+  }));
+
+  return aggregate(normalized, "Assigned");
 }
