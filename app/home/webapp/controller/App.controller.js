@@ -64,6 +64,16 @@ sap.ui.define([
       window.location.href = EQUIPMENT_APP;
     },
 
+    onCreateProcedure: async function () {
+      this._resetProcedureForm();
+      try {
+        await this._loadEquipments();
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to load equipment list");
+      }
+      this.byId("createProcedureDialog").open();
+    },
+
     onAssignTechnician: async function () {
       await Promise.all([
         this._loadAssignableWorkOrders(),
@@ -135,6 +145,40 @@ sap.ui.define([
       await this._mapProcedureForEquipment(equipment.equipment_id);
     },
 
+    onProcedureEquipmentSelected: function (event) {
+      const selected = event.getParameter("selectedItem");
+      const equipment = selected && selected.getBindingContext("home").getObject();
+
+      if (!equipment) {
+        return;
+      }
+
+      this._setProperty("/createProcedure/EquipmentName", equipment.equipment_name || "");
+      this._setProperty("/createProcedure/EquipmentType", equipment.equipment_type || "");
+    },
+
+    onCancelCreateProcedure: function () {
+      this.byId("createProcedureDialog").close();
+    },
+
+    onSubmitProcedure: async function () {
+      const payload = Object.assign({}, this._model.getProperty("/createProcedure"));
+
+      if (!payload.EquipmentID || !payload.MaintenanceProcedure) {
+        MessageToast.show("Select equipment and enter procedure");
+        return;
+      }
+
+      try {
+        await this._postJson("/odata/v4/procedure-service-api/Procedures", payload);
+        MessageToast.show("Procedure created");
+        this.byId("createProcedureDialog").close();
+        await this._loadDashboard(this._model.getProperty("/role"));
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to create procedure");
+      }
+    },
+
     onSubmitAssignTechnician: async function () {
       const assign = this._model.getProperty("/assign");
 
@@ -174,40 +218,41 @@ sap.ui.define([
     },
 
     _loadDashboard: async function (role) {
-      if (role !== "Supervisor") {
-        this._model.setProperty("/summary", {
-          totalWorkOrders: 0,
-          equipmentCount: 0
-        });
+      if (!["Supervisor", "Planner"].includes(role)) {
         return;
       }
 
-      const [summary, statusChart, priorityChart] = await Promise.all([
-        this._getJson("/odata/v4/dashboard/getSummary()"),
-        this._getJson("/odata/v4/dashboard/getStatusChart()"),
-        this._getJson("/odata/v4/dashboard/getPriorityChart()")
+      const summary = await this._getJson("/odata/v4/dashboard/getSummary()");
+      this._model.setProperty("/summary", summary);
+
+      if (role !== "Supervisor") {
+        return;
+      }
+
+      const [assignedChart, statusChart] = await Promise.all([
+        this._getJson("/odata/v4/dashboard/getAssignedChart()"),
+        this._getJson("/odata/v4/dashboard/getStatusChart()")
       ]);
 
-      this._model.setProperty("/summary", summary);
+      this._model.setProperty("/assignedChart", assignedChart.value || assignedChart);
       this._model.setProperty("/statusChart", statusChart.value || statusChart);
-      this._model.setProperty("/priorityChart", priorityChart.value || priorityChart);
       this._configureCharts();
     },
 
     _configureCharts: function () {
+      const assignedChart = this.byId("assignedChart");
       const statusChart = this.byId("statusChart");
-      const priorityChart = this.byId("priorityChart");
 
-      if (statusChart) {
-        statusChart.setVizProperties({
+      if (assignedChart) {
+        assignedChart.setVizProperties({
           plotArea: { dataLabel: { visible: true } },
           legend: { visible: true },
           title: { visible: false }
         });
       }
 
-      if (priorityChart) {
-        priorityChart.setVizProperties({
+      if (statusChart) {
+        statusChart.setVizProperties({
           plotArea: { dataLabel: { visible: true } },
           valueAxis: { title: { visible: false } },
           categoryAxis: { title: { visible: false } },
@@ -265,7 +310,7 @@ sap.ui.define([
         return;
       }
 
-      const data = await this._getJson("/odata/v4/equipment-service-api/Equipments?$select=equipment_id,equipment_name&$orderby=equipment_id");
+      const data = await this._getJson("/odata/v4/equipment-service-api/Equipments?$select=equipment_id,equipment_name,equipment_type&$orderby=equipment_id");
       this._setProperty("/equipments", data.value || []);
     },
 
@@ -390,6 +435,16 @@ sap.ui.define([
         Status: "Open",
         AssignedTo: "",
         AssignedName: ""
+      });
+    },
+
+    _resetProcedureForm: function () {
+      this._setProperty("/createProcedure", {
+        EquipmentID: "",
+        EquipmentName: "",
+        EquipmentType: "",
+        MaintenanceCategory: "Preventive Maintenance",
+        MaintenanceProcedure: ""
       });
     },
 

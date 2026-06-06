@@ -13,6 +13,7 @@ sap.ui.define([
       this.setModel(new JSONModel({
         role: "",
         summary: {},
+        assignedChart: [],
         statusChart: [],
         priorityChart: [],
         assignedCount: 0,
@@ -25,6 +26,13 @@ sap.ui.define([
           Status: "Open",
           AssignedTo: "",
           AssignedName: ""
+        },
+        createProcedure: {
+          EquipmentID: "",
+          EquipmentName: "",
+          EquipmentType: "",
+          MaintenanceCategory: "Preventive Maintenance",
+          MaintenanceProcedure: ""
         },
         assign: {
           WorkOrderNo: "",

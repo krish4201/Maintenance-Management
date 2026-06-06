@@ -80,11 +80,8 @@ async function countEquipments() {
   try {
     const srv = await cds.connect.to("equipment");
     const { ZC_MASTER_EQUIPMENT } = srv.entities;
-    const result = await srv.run(
-      SELECT.one.from(ZC_MASTER_EQUIPMENT).columns("count(*) as count")
-    );
 
-    return Number(result?.count || 0);
+    return countRows(srv, ZC_MASTER_EQUIPMENT, "equipment_id");
   } catch (error) {
     return 0;
   }
@@ -94,13 +91,26 @@ async function countProcedures() {
   try {
     const srv = await cds.connect.to("procedure");
     const { ZI_MAINT_PROC } = srv.entities;
+
+    return countRows(srv, ZI_MAINT_PROC, "EquipmentID");
+  } catch (error) {
+    return 0;
+  }
+}
+
+async function countRows(srv, entity, keyColumn) {
+  try {
     const result = await srv.run(
-      SELECT.one.from(ZI_MAINT_PROC).columns("count(*) as count")
+      SELECT.one.from(entity).columns("count(*) as count")
     );
 
     return Number(result?.count || 0);
   } catch (error) {
-    return 0;
+    const rows = await srv.run(
+      SELECT.from(entity).columns(keyColumn)
+    );
+
+    return rows.length;
   }
 }
 
