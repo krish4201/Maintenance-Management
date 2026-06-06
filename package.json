@@ -37,6 +37,7 @@
       "equipment": {
         "kind": "odata-v4",
         "model": "srv/external/equipment",
+        "csrf": true,
         "credentials": {
           "destination": "EQUIPMENT_DEST"
         }
@@ -44,6 +45,10 @@
       "procedure": {
         "kind": "odata-v2",
         "model": "srv/external/procedure",
+        "csrf": {
+          "method": "get",
+          "url": "/"
+        },
         "credentials": {
           "destination": "PROCEDURE_DEST"
         }
