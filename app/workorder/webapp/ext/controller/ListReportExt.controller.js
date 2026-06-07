@@ -14,6 +14,11 @@ sap.ui.define([
     override: {
       onInit: function () {
         this._setRoleModel();
+        this._scheduleActionVisibilityUpdate();
+      },
+
+      onAfterRendering: function () {
+        this._scheduleActionVisibilityUpdate();
       }
     },
 
@@ -97,8 +102,10 @@ sap.ui.define([
         const userInfo = await this._getJson("/odata/v4/role/getUserInfo()");
 
         model.setProperty("/technician", userInfo.role === "Technician");
+        this._scheduleActionVisibilityUpdate();
       } catch (error) {
         model.setProperty("/technician", false);
+        this._scheduleActionVisibilityUpdate();
       }
     },
 
@@ -130,6 +137,101 @@ sap.ui.define([
         Status: workOrder.Status,
         normalizedStatus: this._normalizeStatus(workOrder.Status)
       });
+    },
+
+    _scheduleActionVisibilityUpdate: function () {
+      clearTimeout(this._actionVisibilityTimer);
+      this._actionVisibilityTimer = setTimeout(this._updateTechnicianActionVisibility.bind(this), 0);
+    },
+
+    _updateTechnicianActionVisibility: function () {
+      const view = this.base.getView();
+      const roleModel = view.getModel("role");
+      const technician = Boolean(roleModel && roleModel.getProperty("/technician"));
+      const buttons = [];
+
+      this._visitControls(view, function (control) {
+        if (control.isA && control.isA("sap.m.Button")) {
+          buttons.push(control);
+        }
+      });
+
+      buttons.forEach(function (button) {
+        const text = button.getText && button.getText();
+
+        if (!["Start Work", "Complete Task"].includes(text)) {
+          return;
+        }
+
+        const workOrder = this._readWorkOrderFromControl(button);
+        const normalizedStatus = this._normalizeStatus(workOrder.Status);
+        const visible = technician && (
+          (text === "Start Work" && normalizedStatus === "assigned") ||
+          (text === "Complete Task" && normalizedStatus === "inprogress")
+        );
+
+        button.setVisible(visible);
+
+        console.log("[technician-actions] Enforced visibility", {
+          action: text,
+          WorkOrderNo: workOrder.WorkOrderNo,
+          Status: workOrder.Status,
+          normalizedStatus: normalizedStatus,
+          technician: technician,
+          visible: visible
+        });
+      }, this);
+    },
+
+    _visitControls: function (control, visitor) {
+      if (!control || !control.getMetadata) {
+        return;
+      }
+
+      visitor(control);
+
+      const aggregations = control.getMetadata().getAllAggregations();
+
+      Object.keys(aggregations).forEach(function (name) {
+        const child = control.getAggregation(name);
+
+        if (Array.isArray(child)) {
+          child.forEach(function (item) {
+            this._visitControls(item, visitor);
+          }, this);
+          return;
+        }
+
+        this._visitControls(child, visitor);
+      }, this);
+    },
+
+    _readWorkOrderFromControl: function (control) {
+      let current = control;
+
+      while (current) {
+        const context = current.getBindingContext && current.getBindingContext();
+
+        if (context) {
+          if (context.getObject) {
+            const object = context.getObject() || {};
+
+            return {
+              WorkOrderNo: object.WorkOrderNo || context.getProperty && context.getProperty("WorkOrderNo"),
+              Status: object.Status || context.getProperty && context.getProperty("Status")
+            };
+          }
+
+          return {
+            WorkOrderNo: context.getProperty && context.getProperty("WorkOrderNo"),
+            Status: context.getProperty && context.getProperty("Status")
+          };
+        }
+
+        current = current.getParent && current.getParent();
+      }
+
+      return {};
     },
 
     _getProcedure: async function (equipmentId, maintenanceType) {
@@ -245,7 +347,11 @@ sap.ui.define([
 
     _refresh: function () {
       this._refreshNow();
-      setTimeout(this._refreshNow.bind(this), 500);
+      this._scheduleActionVisibilityUpdate();
+      setTimeout(function () {
+        this._refreshNow();
+        this._scheduleActionVisibilityUpdate();
+      }.bind(this), 500);
     },
 
     _refreshNow: function () {

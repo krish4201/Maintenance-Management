@@ -1,2 +1,0 @@
-sap.ui.define([],function(){"use strict";function n(n){return String(n||"").replace(/\s+/g,"").toLowerCase()}function i(i,t,e,o){console.log("[technician-actions] Visibility",{action:i,status:t,normalizedStatus:n(t),technician:Boolean(e),visible:o})}return{isStartVisible:function(t,e){const o=Boolean(e)&&n(t)==="assigned";i("Start Work",t,e,o);return o},isCompleteVisible:function(t,e){const o=Boolean(e)&&n(t)==="inprogress";i("Complete Task",t,e,o);return o}}});
-//# sourceMappingURL=StatusFormatter.js.map
