@@ -9,7 +9,7 @@
       press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onStartWork" />
     <Button
       text="Complete Task"
-      visible="{= ${role>/technician} &amp;&amp; ${Status} === 'InProgress' }"
+      visible="{= ${role>/technician} &amp;&amp; (${Status} === 'InProgress' || ${Status} === 'In Progress') }"
       press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onCompleteWork" />
     <Button
       text="View Procedure"

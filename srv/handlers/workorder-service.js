@@ -75,15 +75,28 @@ module.exports = cds.service.impl(async function () {
   this.on("updateStatus", async req => {
     const { workOrderNo, status } = req.data;
     const userInfo = await getUserInfo(req.user.id, req.user);
+    const nextStatus = canonicalTechnicianStatus(status);
 
     if (userInfo.role !== "Technician") {
       req.reject(403, "Only Technician");
     }
 
+    if (!nextStatus) {
+      req.reject(400, "Technicians can only start or complete work orders");
+    }
+
     const current = await getAssignedWorkOrder(req, workorderSrv, WorkOrders, workOrderNo, userInfo);
 
-    await addStatusHistory(workorderSrv, StatusHistory, current, status, userInfo.userId);
-    await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, status);
+    if (nextStatus === "InProgress" && normalizeStatus(current.Status) !== "assigned") {
+      req.reject(400, "Only assigned work orders can be started");
+    }
+
+    if (nextStatus === "Completed" && normalizeStatus(current.Status) !== "inprogress") {
+      req.reject(400, "Only in-progress work orders can be completed");
+    }
+
+    await addStatusHistory(workorderSrv, StatusHistory, current, nextStatus, userInfo.userId);
+    await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, nextStatus);
 
     return {
       message: "Status Updated"
@@ -99,7 +112,7 @@ module.exports = cds.service.impl(async function () {
 
     const current = await getAssignedWorkOrder(req, workorderSrv, WorkOrders, req.data.workOrderNo, userInfo);
 
-    if (current.Status !== "Assigned") {
+    if (normalizeStatus(current.Status) !== "assigned") {
       req.reject(400, "Only assigned work orders can be started");
     }
 
@@ -120,7 +133,7 @@ module.exports = cds.service.impl(async function () {
 
     const current = await getAssignedWorkOrder(req, workorderSrv, WorkOrders, req.data.workOrderNo, userInfo);
 
-    if (current.Status !== "InProgress") {
+    if (normalizeStatus(current.Status) !== "inprogress") {
       req.reject(400, "Only in-progress work orders can be completed");
     }
 
@@ -215,6 +228,26 @@ function findWhereValue(where, field) {
     if (where[index]?.ref?.[0] === field && where[index + 1] === "=") {
       return where[index + 2]?.val || null;
     }
+  }
+
+  return null;
+}
+
+function normalizeStatus(status) {
+  return String(status || "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
+function canonicalTechnicianStatus(status) {
+  const normalized = normalizeStatus(status);
+
+  if (normalized === "inprogress") {
+    return "InProgress";
+  }
+
+  if (normalized === "completed") {
+    return "Completed";
   }
 
   return null;

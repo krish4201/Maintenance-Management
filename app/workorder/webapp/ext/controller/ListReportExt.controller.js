@@ -24,6 +24,11 @@ sap.ui.define([
         return;
       }
 
+      if (this._normalizeStatus(workOrder.Status) !== "assigned") {
+        MessageToast.show("Only assigned work orders can be started");
+        return;
+      }
+
       await this._postJson("/odata/v4/work-order/startWork", {
         workOrderNo: workOrder.WorkOrderNo
       });
@@ -35,6 +40,11 @@ sap.ui.define([
       const workOrder = await this._getWorkOrder(event);
 
       if (!workOrder) {
+        return;
+      }
+
+      if (this._normalizeStatus(workOrder.Status) !== "inprogress") {
+        MessageToast.show("Only in-progress work orders can be completed");
         return;
       }
 
@@ -101,6 +111,12 @@ sap.ui.define([
       }
 
       return context.getObject();
+    },
+
+    _normalizeStatus: function (status) {
+      return String(status || "")
+        .replace(/\s+/g, "")
+        .toLowerCase();
     },
 
     _getProcedure: async function (equipmentId, maintenanceType) {
@@ -215,17 +231,20 @@ sap.ui.define([
     },
 
     _refresh: function () {
+      this._refreshNow();
+      setTimeout(this._refreshNow.bind(this), 500);
+    },
+
+    _refreshNow: function () {
       const extensionAPI = this.base.getExtensionAPI && this.base.getExtensionAPI();
+      const model = this.base.getView().getModel();
 
       if (extensionAPI && extensionAPI.refresh) {
         extensionAPI.refresh();
-        return;
       }
 
-      const model = this.base.getView().getModel();
-
       if (model && model.refresh) {
-        model.refresh();
+        model.refresh(true);
       }
     }
   });
