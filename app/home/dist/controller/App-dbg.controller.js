@@ -61,7 +61,8 @@ sap.ui.define([
     },
 
     onCreateEquipment: function () {
-      window.location.href = EQUIPMENT_APP;
+      this._resetEquipmentForm();
+      this.byId("createEquipmentDialog").open();
     },
 
     onCreateProcedure: async function () {
@@ -179,6 +180,29 @@ sap.ui.define([
       }
     },
 
+    onCancelCreateEquipment: function () {
+      this.byId("createEquipmentDialog").close();
+    },
+
+    onSubmitEquipment: async function () {
+      const payload = Object.assign({}, this._model.getProperty("/createEquipment"));
+
+      if (!payload.equipment_id || !payload.equipment_name || !payload.equipment_type) {
+        MessageToast.show("Enter equipment ID, name, and type");
+        return;
+      }
+
+      try {
+        await this._postJson("/odata/v4/equipment-service-api/Equipments", payload);
+        MessageToast.show("Equipment created");
+        this.byId("createEquipmentDialog").close();
+        this._setProperty("/equipments", []);
+        await this._loadDashboard(this._model.getProperty("/role"));
+      } catch (error) {
+        this._setProperty("/error", error.message || "Unable to create equipment");
+      }
+    },
+
     onSubmitAssignTechnician: async function () {
       const assign = this._model.getProperty("/assign");
 
@@ -210,6 +234,11 @@ sap.ui.define([
 
     onShowProcedures: async function () {
       await this._loadProcedureList();
+      this.byId("procedureListDialog").open();
+    },
+
+    onShowUniqueProcedures: async function () {
+      await this._loadUniqueProcedureList();
       this.byId("procedureListDialog").open();
     },
 
@@ -262,13 +291,10 @@ sap.ui.define([
     },
 
     _loadTechnicianSummary: async function () {
-      const [count, workOrders] = await Promise.all([
-        this._getText("/odata/v4/work-order/WorkOrders/$count"),
-        this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'")
-      ]);
+      const workOrders = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
       const assignedOrders = workOrders.value || [];
 
-      this._setProperty("/assignedCount", Number(count) || 0);
+      this._setProperty("/assignedCount", assignedOrders.length);
       this._setProperty("/workOrders", assignedOrders);
 
       if (!this._model.getProperty("/selectedWorkOrder") && assignedOrders.length) {
@@ -303,6 +329,31 @@ sap.ui.define([
       }));
 
       this._setProperty("/procedureList", procedures);
+    },
+
+    _loadUniqueProcedureList: async function () {
+      const data = await this._getJson("/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,EquipmentName,EquipmentType,MaintenanceCategory,MaintenanceProcedure&$orderby=EquipmentID");
+      const unique = [];
+      const seen = new Set();
+
+      for (const procedure of data.value || []) {
+        const key = procedure.EquipmentID || procedure.MaintenanceProcedure;
+
+        if (!key || seen.has(key)) {
+          continue;
+        }
+
+        seen.add(key);
+        unique.push({
+          ProcedureID: procedure.EquipmentID,
+          EquipmentName: procedure.EquipmentName,
+          MaintenanceType: procedure.MaintenanceCategory,
+          MaintenanceProcedure: procedure.MaintenanceProcedure,
+          EquipmentType: procedure.EquipmentType
+        });
+      }
+
+      this._setProperty("/procedureList", unique);
     },
 
     _loadEquipments: async function () {
@@ -445,6 +496,20 @@ sap.ui.define([
         EquipmentType: "",
         MaintenanceCategory: "Preventive Maintenance",
         MaintenanceProcedure: ""
+      });
+    },
+
+    _resetEquipmentForm: function () {
+      this._setProperty("/createEquipment", {
+        equipment_id: "",
+        equipment_name: "",
+        equipment_type: "",
+        manufacturer: "",
+        model_number: "",
+        serial_number: "",
+        location: "",
+        last_maintained_by: "",
+        status: "Active"
       });
     },
 

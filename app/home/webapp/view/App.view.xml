@@ -178,7 +178,7 @@
             <GenericTile
               header="Procedures"
               subheader="Create and review procedure data"
-              press=".onCreateProcedure">
+              press=".onShowUniqueProcedures">
               <TileContent>
                 <NumericContent icon="sap-icon://list" value="{home>/summary/procedureCount}" />
               </TileContent>
@@ -339,6 +339,51 @@
           </beginButton>
           <endButton>
             <Button text="Cancel" press=".onCancelCreateProcedure" />
+          </endButton>
+        </Dialog>
+        <Dialog
+          id="createEquipmentDialog"
+          title="Create Equipment"
+          contentWidth="34rem">
+          <content>
+            <VBox class="createForm">
+              <Label text="Equipment ID" required="true" />
+              <Input value="{home>/createEquipment/equipment_id}" maxLength="20" />
+
+              <Label text="Equipment Name" required="true" />
+              <Input value="{home>/createEquipment/equipment_name}" maxLength="100" />
+
+              <Label text="Equipment Type" required="true" />
+              <Input value="{home>/createEquipment/equipment_type}" maxLength="50" />
+
+              <Label text="Manufacturer" />
+              <Input value="{home>/createEquipment/manufacturer}" maxLength="100" />
+
+              <Label text="Model Number" />
+              <Input value="{home>/createEquipment/model_number}" maxLength="50" />
+
+              <Label text="Serial Number" />
+              <Input value="{home>/createEquipment/serial_number}" maxLength="50" />
+
+              <Label text="Location" />
+              <Input value="{home>/createEquipment/location}" maxLength="100" />
+
+              <Label text="Last Maintained By" />
+              <Input value="{home>/createEquipment/last_maintained_by}" maxLength="100" />
+
+              <Label text="Status" required="true" />
+              <Select selectedKey="{home>/createEquipment/status}" width="100%">
+                <core:Item key="Active" text="Active" />
+                <core:Item key="Inactive" text="Inactive" />
+                <core:Item key="Maintenance" text="Maintenance" />
+              </Select>
+            </VBox>
+          </content>
+          <beginButton>
+            <Button text="Create" type="Emphasized" icon="sap-icon://accept" press=".onSubmitEquipment" />
+          </beginButton>
+          <endButton>
+            <Button text="Cancel" press=".onCancelCreateEquipment" />
           </endButton>
         </Dialog>
         <Dialog

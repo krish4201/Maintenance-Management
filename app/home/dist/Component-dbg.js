@@ -34,6 +34,17 @@ sap.ui.define([
           MaintenanceCategory: "Preventive Maintenance",
           MaintenanceProcedure: ""
         },
+        createEquipment: {
+          equipment_id: "",
+          equipment_name: "",
+          equipment_type: "",
+          manufacturer: "",
+          model_number: "",
+          serial_number: "",
+          location: "",
+          last_maintained_by: "",
+          status: "Active"
+        },
         assign: {
           WorkOrderNo: "",
           TechnicianId: "",

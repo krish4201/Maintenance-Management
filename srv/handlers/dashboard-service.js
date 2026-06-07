@@ -92,7 +92,7 @@ async function countProcedures() {
     const srv = await cds.connect.to("procedure");
     const { ZI_MAINT_PROC } = srv.entities;
 
-    return countRows(srv, ZI_MAINT_PROC, "EquipmentID");
+    return countUniqueRows(srv, ZI_MAINT_PROC, "EquipmentID");
   } catch (error) {
     return 0;
   }
@@ -115,9 +115,24 @@ async function countRows(srv, entity, keyColumn) {
 }
 
 function aggregateAssigned(rows) {
-  const normalized = rows.map(row => ({
-    Assigned: row.AssignedName || row.AssignedTo || "Unassigned"
-  }));
+  const normalized = rows.map(row => {
+    const hasAssignment = Boolean(row.AssignedName || row.AssignedTo);
+
+    return {
+      Assigned: hasAssignment ? "Assigned" : "Not Assigned"
+    };
+  });
 
   return aggregate(normalized, "Assigned");
+}
+
+async function countUniqueRows(srv, entity, keyColumn) {
+  const rows = await srv.run(
+    SELECT.from(entity).columns(keyColumn)
+  );
+  const values = rows
+    .map(row => row[keyColumn])
+    .filter(Boolean);
+
+  return new Set(values).size;
 }
