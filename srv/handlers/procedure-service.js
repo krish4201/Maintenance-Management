@@ -41,38 +41,29 @@ module.exports = cds.service.impl(async function () {
             await findExistingProcedure(
                 procedureSrv,
                 ZI_MAINT_PROC,
-                data.EquipmentID
+                procedureKey(data)
             )
 
         if(existing){
-
-            if(!sameMaintenanceCategory(existing.MaintenanceCategory, data.MaintenanceCategory)){
-
-                req.reject(
-                    409,
-                    `A procedure already exists for equipment ${data.EquipmentID} with maintenance type ${existing.MaintenanceCategory || 'blank'}. The current SAP Gateway service only keys procedures by EquipmentID, so it cannot store another procedure for ${data.MaintenanceCategory}. Change ZI_MAINT_PROC key to EquipmentID + MaintenanceCategory and re-import the service metadata.`
-                )
-
-            }
 
             if(existing.Update_mc === false){
 
                 req.reject(
                     409,
-                    `A maintenance procedure already exists for equipment ${data.EquipmentID} and cannot be updated.`
+                    `A maintenance procedure already exists for equipment ${data.EquipmentID} and maintenance type ${data.MaintenanceCategory}, but it cannot be updated.`
                 )
 
             }
 
             await procedureSrv.run(
-                UPDATE(ZI_MAINT_PROC, { EquipmentID: data.EquipmentID })
+                UPDATE(ZI_MAINT_PROC, procedureKey(data))
                     .with(updatePayload(data))
             )
 
             return procedureSrv.run(
                 SELECT.one
                     .from(ZI_MAINT_PROC)
-                    .where({ EquipmentID: data.EquipmentID })
+                    .where(procedureKey(data))
             )
 
         }
@@ -91,7 +82,7 @@ module.exports = cds.service.impl(async function () {
 
                 req.reject(
                     409,
-                    `A maintenance procedure already exists for equipment ${data.EquipmentID}. Reopen the procedure and save again to update it.`
+                    `A maintenance procedure already exists for equipment ${data.EquipmentID} and maintenance type ${data.MaintenanceCategory}. Reopen the procedure and save again to update it.`
                 )
 
             }
@@ -151,33 +142,29 @@ function updatePayload(data) {
         )
 
     delete payload.EquipmentID
+    delete payload.MaintenanceCategory
 
     return payload
 
 }
 
-async function findExistingProcedure(procedureSrv, ZI_MAINT_PROC, equipmentId) {
+function procedureKey(data) {
+
+    return {
+        EquipmentID: data.EquipmentID,
+        MaintenanceCategory: data.MaintenanceCategory
+    }
+
+}
+
+async function findExistingProcedure(procedureSrv, ZI_MAINT_PROC, key) {
 
     return procedureSrv.run(
         SELECT.one
             .from(ZI_MAINT_PROC)
             .columns('EquipmentID', 'MaintenanceCategory', 'Update_mc')
-            .where({ EquipmentID: equipmentId })
+            .where(key)
     )
-
-}
-
-function sameMaintenanceCategory(current, requested) {
-
-    return normalizeMaintenanceCategory(current) === normalizeMaintenanceCategory(requested)
-
-}
-
-function normalizeMaintenanceCategory(value) {
-
-    return String(value || '')
-        .trim()
-        .toLowerCase()
 
 }
 
