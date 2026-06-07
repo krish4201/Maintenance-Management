@@ -93,8 +93,8 @@ module.exports = cds.service.impl(async function () {
 
     const current = await getAssignedWorkOrder(req, workorderSrv, WorkOrders, req.data.workOrderNo, userInfo);
 
-    if (!["Open", "Assigned"].includes(current.Status)) {
-      req.reject(400, "Only open or assigned work orders can be started");
+    if (current.Status !== "Assigned") {
+      req.reject(400, "Only assigned work orders can be started");
     }
 
     await addStatusHistory(workorderSrv, StatusHistory, current, "InProgress", userInfo.userId);
@@ -122,7 +122,7 @@ module.exports = cds.service.impl(async function () {
     await updateWorkOrderStatus(workorderSrv, WorkOrders, current.ID, "Completed");
 
     return {
-      message: "Work completed"
+      message: "Task completed"
     };
   });
 

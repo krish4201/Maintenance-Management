@@ -41,7 +41,7 @@ sap.ui.define([
       await this._postJson("/odata/v4/work-order/completeWork", {
         workOrderNo: workOrder.WorkOrderNo
       });
-      MessageToast.show("Work completed");
+      MessageToast.show("Task completed");
       this._refresh();
     },
 
@@ -52,7 +52,10 @@ sap.ui.define([
         return;
       }
 
-      const procedure = await this._getProcedure(workOrder.EquipmentID || workOrder.ProcedureID);
+      const procedure = await this._getProcedure(
+        workOrder.EquipmentID || workOrder.ProcedureID,
+        workOrder.MaintenanceType
+      );
 
       this._showProcedureDialog(workOrder, procedure);
     },
@@ -89,13 +92,21 @@ sap.ui.define([
       return context.getObject();
     },
 
-    _getProcedure: async function (equipmentId) {
+    _getProcedure: async function (equipmentId, maintenanceType) {
       if (!equipmentId) {
         return null;
       }
 
       const encoded = encodeURIComponent(String(equipmentId).replace(/'/g, "''"));
-      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,EquipmentName,EquipmentType,MaintenanceCategory,MaintenanceProcedure&$filter=EquipmentID eq '${encoded}'&$top=1`);
+      const filters = [`EquipmentID eq '${encoded}'`];
+
+      if (maintenanceType) {
+        const category = encodeURIComponent(String(maintenanceType).replace(/'/g, "''"));
+
+        filters.push(`MaintenanceCategory eq '${category}'`);
+      }
+
+      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,EquipmentName,EquipmentType,MaintenanceCategory,MaintenanceProcedure&$filter=${filters.join(" and ")}&$top=1`);
 
       return (data.value || [])[0] || null;
     },
@@ -117,7 +128,7 @@ sap.ui.define([
             text: procedure?.MaintenanceCategory || workOrder.MaintenanceType || ""
           }),
           new Text({
-            text: procedure?.MaintenanceProcedure || "No procedure found for this equipment.",
+            text: procedure?.MaintenanceProcedure || "No procedure found for this equipment and maintenance type.",
             wrapping: true
           })
         ]

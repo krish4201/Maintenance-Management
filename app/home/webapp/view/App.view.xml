@@ -254,7 +254,7 @@
               <Input value="{home>/create/ProcedureID}" enabled="false" />
 
               <Label text="Maintenance Type" required="true" />
-              <Select selectedKey="{home>/create/MaintenanceType}" width="100%">
+              <Select selectedKey="{home>/create/MaintenanceType}" width="100%" change=".onMaintenanceTypeChanged">
                 <core:Item key="Preventive Maintenance" text="Preventive Maintenance" />
                 <core:Item key="Breakdown Maintenance" text="Breakdown Maintenance" />
               </Select>

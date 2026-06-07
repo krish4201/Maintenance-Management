@@ -140,10 +140,15 @@ sap.ui.define([
         return;
       }
 
+      this._setProperty("/create/EquipmentID", equipment.equipment_id || "");
       this._setProperty("/create/EquipmentName", equipment.equipment_name || "");
       this._setProperty("/create/ProcedureID", "");
 
-      await this._mapProcedureForEquipment(equipment.equipment_id);
+      await this._mapProcedureForWorkOrder();
+    },
+
+    onMaintenanceTypeChanged: async function () {
+      await this._mapProcedureForWorkOrder();
     },
 
     onProcedureEquipmentSelected: function (event) {
@@ -316,7 +321,10 @@ sap.ui.define([
       const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status");
       const workOrders = data.value || [];
       const procedures = await Promise.all(workOrders.map(async workOrder => {
-        const procedure = await this._getProcedureForEquipment(workOrder.EquipmentID);
+        const procedure = await this._getProcedureForEquipment(
+          workOrder.EquipmentID,
+          workOrder.MaintenanceType
+        );
 
         return {
           WorkOrderNo: workOrder.WorkOrderNo,
@@ -337,7 +345,7 @@ sap.ui.define([
       const seen = new Set();
 
       for (const procedure of data.value || []) {
-        const key = procedure.EquipmentID || procedure.MaintenanceProcedure;
+        const key = `${procedure.EquipmentID || ""}|${this._mapMaintenanceType(procedure.MaintenanceCategory)}`;
 
         if (!key || seen.has(key)) {
           continue;
@@ -365,25 +373,40 @@ sap.ui.define([
       this._setProperty("/equipments", data.value || []);
     },
 
-    _mapProcedureForEquipment: async function (equipmentId) {
-      const procedure = await this._getProcedureForEquipment(equipmentId);
+    _mapProcedureForWorkOrder: async function () {
+      const create = this._model.getProperty("/create") || {};
+      const procedure = await this._getProcedureForEquipment(
+        create.EquipmentID,
+        create.MaintenanceType
+      );
+
+      this._setProperty("/create/ProcedureID", "");
 
       if (!procedure) {
-        MessageToast.show("No procedure found for selected equipment");
+        if (create.EquipmentID && create.MaintenanceType) {
+          MessageToast.show("No procedure found for selected equipment and maintenance type");
+        }
         return;
       }
 
       this._setProperty("/create/ProcedureID", procedure.EquipmentID);
-      this._setProperty("/create/MaintenanceType", this._mapMaintenanceType(procedure.MaintenanceCategory));
     },
 
-    _getProcedureForEquipment: async function (equipmentId) {
+    _getProcedureForEquipment: async function (equipmentId, maintenanceType) {
       if (!equipmentId) {
         return null;
       }
 
       const encoded = encodeURIComponent(String(equipmentId).replace(/'/g, "''"));
-      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,MaintenanceCategory,MaintenanceProcedure&$filter=EquipmentID eq '${encoded}'&$top=1`);
+      const filters = [`EquipmentID eq '${encoded}'`];
+
+      if (maintenanceType) {
+        const category = encodeURIComponent(String(maintenanceType).replace(/'/g, "''"));
+
+        filters.push(`MaintenanceCategory eq '${category}'`);
+      }
+
+      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,MaintenanceCategory,MaintenanceProcedure&$filter=${filters.join(" and ")}&$top=1`);
 
       return (data.value || [])[0] || null;
     },
@@ -408,8 +431,8 @@ sap.ui.define([
         return;
       }
 
-      if (action === "startWork" && !["Open", "Assigned"].includes(workOrder.Status)) {
-        MessageToast.show("Only open or assigned work orders can be started");
+      if (action === "startWork" && workOrder.Status !== "Assigned") {
+        MessageToast.show("Only assigned work orders can be started");
         return;
       }
 
@@ -421,7 +444,7 @@ sap.ui.define([
       await this._postJson(`/odata/v4/work-order/${action}`, {
         workOrderNo: workOrderNo
       });
-      MessageToast.show(action === "startWork" ? "Work started" : "Work completed");
+      MessageToast.show(action === "startWork" ? "Work started" : "Task completed");
       await this._loadTechnicianSummary();
     },
 

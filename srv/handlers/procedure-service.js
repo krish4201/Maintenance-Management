@@ -46,6 +46,15 @@ module.exports = cds.service.impl(async function () {
 
         if(existing){
 
+            if(!sameMaintenanceCategory(existing.MaintenanceCategory, data.MaintenanceCategory)){
+
+                req.reject(
+                    409,
+                    `A procedure already exists for equipment ${data.EquipmentID} with maintenance type ${existing.MaintenanceCategory || 'blank'}. The current SAP Gateway service only keys procedures by EquipmentID, so it cannot store another procedure for ${data.MaintenanceCategory}. Change ZI_MAINT_PROC key to EquipmentID + MaintenanceCategory and re-import the service metadata.`
+                )
+
+            }
+
             if(existing.Update_mc === false){
 
                 req.reject(
@@ -105,12 +114,23 @@ function procedurePayload(req) {
 
     data.EquipmentID =
         String(data.EquipmentID || '').trim()
+    data.MaintenanceCategory =
+        String(data.MaintenanceCategory || '').trim()
 
     if(!data.EquipmentID){
 
         req.reject(
             400,
             'Equipment ID is required to create or update a maintenance procedure.'
+        )
+
+    }
+
+    if(!data.MaintenanceCategory){
+
+        req.reject(
+            400,
+            'Maintenance type is required to create or update a maintenance procedure.'
         )
 
     }
@@ -141,9 +161,23 @@ async function findExistingProcedure(procedureSrv, ZI_MAINT_PROC, equipmentId) {
     return procedureSrv.run(
         SELECT.one
             .from(ZI_MAINT_PROC)
-            .columns('EquipmentID', 'Update_mc')
+            .columns('EquipmentID', 'MaintenanceCategory', 'Update_mc')
             .where({ EquipmentID: equipmentId })
     )
+
+}
+
+function sameMaintenanceCategory(current, requested) {
+
+    return normalizeMaintenanceCategory(current) === normalizeMaintenanceCategory(requested)
+
+}
+
+function normalizeMaintenanceCategory(value) {
+
+    return String(value || '')
+        .trim()
+        .toLowerCase()
 
 }
 
