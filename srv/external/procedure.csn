@@ -26,6 +26,12 @@
      "length": 10,
      "notNull": true
     },
+    "MaintenanceCategory": {
+     "key": true,
+     "type": "cds.String",
+     "length": 30,
+     "notNull": true
+    },
     "Delete_mc": {
      "type": "cds.Boolean",
      "@sap.label": "Dyn. Method Control",
@@ -47,10 +53,6 @@
      "length": 50
     },
     "EquipmentType": {
-     "type": "cds.String",
-     "length": 30
-    },
-    "MaintenanceCategory": {
      "type": "cds.String",
      "length": 30
     },

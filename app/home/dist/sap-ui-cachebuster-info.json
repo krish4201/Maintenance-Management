@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "i18n/i18n_en.properties": 1780641939649,
   "i18n/i18n.properties": 1780641360537,
   "controller/App.controller.js": 1780814917705,
@@ -13,4 +14,20 @@
   "view/App.view.xml": 1780814834697,
   "css/style.css": 1780675747686,
   "index.html": 1780652793419
+=======
+  "index.html": 1780764853112,
+  "i18n/i18n.properties": 1780764853112,
+  "Component.js": 1780772474939,
+  "manifest.json": 1780764853112,
+  "controller/App.controller.js": 1780772474939,
+  "Component-dbg.js": 1780772474939,
+  "Component.js.map": 1780817841104,
+  "controller/App-dbg.controller.js": 1780772474939,
+  "controller/App.controller.js.map": 1780817841160,
+  "Component-preload.js": 1780817841304,
+  "Component-preload.js.map": 1780817841304,
+  "view/App.view.xml": 1780772474939,
+  "css/style.css": 1780764853112,
+  "i18n/i18n_en.properties": 1780764853112
+>>>>>>> bd38e9a4e94177eca96b6b79235519abf64c6ea0
 }

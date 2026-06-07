@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "ext/controller/ObjectPageExt-dbg.controller.js": 1780641521199,
   "i18n/i18n_en.properties": 1780665945646,
   "ext/controller/ListReportExt.controller.js": 1780814898139,
@@ -15,4 +16,18 @@
   "Component-preload.js.map": 1780814935376,
   "ext/fragment/TechnicianActions.fragment.xml": 1780814885091,
   "index.html": 1780675730718
+=======
+  "ext/controller/ObjectPageExt.controller.js.map": 1780817847877,
+  "i18n/i18n.properties": 1780764853116,
+  "Component.js": 1780764853116,
+  "manifest.json": 1780764853116,
+  "ext/controller/ObjectPageExt.controller.js": 1780764853116,
+  "ext/controller/ObjectPageExt-dbg.controller.js": 1780764853116,
+  "i18n/i18n_en.properties": 1780764853116,
+  "Component-dbg.js": 1780764853116,
+  "Component.js.map": 1780817847874,
+  "Component-preload.js": 1780817847972,
+  "Component-preload.js.map": 1780817847972,
+  "index.html": 1780764853116
+>>>>>>> bd38e9a4e94177eca96b6b79235519abf64c6ea0
 }
