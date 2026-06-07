@@ -14,12 +14,19 @@ sap.ui.define([
     override: {
       onInit: function () {
         this._setRoleModel();
-        this._scheduleActionVisibilityUpdate();
-      },
-
-      onAfterRendering: function () {
-        this._scheduleActionVisibilityUpdate();
       }
+    },
+
+    onOpenActionsDialog: async function (event) {
+      const workOrder = await this._getWorkOrder(event);
+
+      if (!workOrder) {
+        return;
+      }
+
+      const latestWorkOrder = await this._getLatestWorkOrder(workOrder.WorkOrderNo);
+
+      this._showActionsDialog(latestWorkOrder || workOrder);
     },
 
     onStartWork: async function (event) {
@@ -29,18 +36,7 @@ sap.ui.define([
         return;
       }
 
-      this._logActionStatus("Start Work", workOrder);
-
-      if (this._normalizeStatus(workOrder.Status) !== "assigned") {
-        MessageToast.show("Only assigned work orders can be started");
-        return;
-      }
-
-      await this._postJson("/odata/v4/work-order/startWork", {
-        workOrderNo: workOrder.WorkOrderNo
-      });
-      MessageToast.show("Work started");
-      this._refresh();
+      await this._executeWorkOrderAction(null, workOrder, "startWork");
     },
 
     onCompleteWork: async function (event) {
@@ -50,18 +46,7 @@ sap.ui.define([
         return;
       }
 
-      this._logActionStatus("Complete Task", workOrder);
-
-      if (this._normalizeStatus(workOrder.Status) !== "inprogress") {
-        MessageToast.show("Only in-progress work orders can be completed");
-        return;
-      }
-
-      await this._postJson("/odata/v4/work-order/completeWork", {
-        workOrderNo: workOrder.WorkOrderNo
-      });
-      MessageToast.show("Task completed");
-      this._refresh();
+      await this._executeWorkOrderAction(null, workOrder, "completeWork");
     },
 
     onViewProcedure: async function (event) {
@@ -102,10 +87,8 @@ sap.ui.define([
         const userInfo = await this._getJson("/odata/v4/role/getUserInfo()");
 
         model.setProperty("/technician", userInfo.role === "Technician");
-        this._scheduleActionVisibilityUpdate();
       } catch (error) {
         model.setProperty("/technician", false);
-        this._scheduleActionVisibilityUpdate();
       }
     },
 
@@ -139,99 +122,137 @@ sap.ui.define([
       });
     },
 
-    _scheduleActionVisibilityUpdate: function () {
-      clearTimeout(this._actionVisibilityTimer);
-      this._actionVisibilityTimer = setTimeout(this._updateTechnicianActionVisibility.bind(this), 0);
-    },
+    _getLatestWorkOrder: async function (workOrderNo) {
+      if (!workOrderNo) {
+        return null;
+      }
 
-    _updateTechnicianActionVisibility: function () {
-      const view = this.base.getView();
-      const roleModel = view.getModel("role");
-      const technician = Boolean(roleModel && roleModel.getProperty("/technician"));
-      const buttons = [];
+      const filter = `WorkOrderNo eq '${this._odataString(workOrderNo)}'`;
+      const params = [
+        `$select=${encodeURIComponent("WorkOrderNo,Status,EquipmentID,EquipmentName,ProcedureID,MaintenanceType")}`,
+        `$filter=${encodeURIComponent(filter)}`,
+        "$top=1"
+      ];
+      const url = `/odata/v4/work-order/WorkOrders?${params.join("&")}`;
 
-      this._visitControls(view, function (control) {
-        if (control.isA && control.isA("sap.m.Button")) {
-          buttons.push(control);
-        }
+      console.log("[technician-actions] Latest status request", {
+        WorkOrderNo: workOrderNo,
+        url: url
       });
 
-      buttons.forEach(function (button) {
-        const text = button.getText && button.getText();
+      const data = await this._getJson(url);
+      const workOrder = (data.value || [])[0] || null;
 
-        if (!["Start Work", "Complete Task"].includes(text)) {
-          return;
-        }
+      console.log("[technician-actions] Latest status response", {
+        WorkOrderNo: workOrder?.WorkOrderNo,
+        Status: workOrder?.Status,
+        normalizedStatus: this._normalizeStatus(workOrder?.Status)
+      });
 
-        const workOrder = this._readWorkOrderFromControl(button);
-        const normalizedStatus = this._normalizeStatus(workOrder.Status);
-        const visible = technician && (
-          (text === "Start Work" && normalizedStatus === "assigned") ||
-          (text === "Complete Task" && normalizedStatus === "inprogress")
-        );
-
-        button.setVisible(visible);
-
-        console.log("[technician-actions] Enforced visibility", {
-          action: text,
-          WorkOrderNo: workOrder.WorkOrderNo,
-          Status: workOrder.Status,
-          normalizedStatus: normalizedStatus,
-          technician: technician,
-          visible: visible
-        });
-      }, this);
+      return workOrder;
     },
 
-    _visitControls: function (control, visitor) {
-      if (!control || !control.getMetadata) {
+    _showActionsDialog: function (workOrder) {
+      const normalizedStatus = this._normalizeStatus(workOrder.Status);
+      const contentItems = [
+        new ObjectStatus({
+          title: "Work Order",
+          text: workOrder.WorkOrderNo || ""
+        }),
+        new ObjectStatus({
+          title: "Status",
+          text: workOrder.Status || ""
+        })
+      ];
+      let actionButton = null;
+
+      if (normalizedStatus === "assigned") {
+        actionButton = new Button({
+          text: "Start Work",
+          type: "Emphasized",
+          press: async function () {
+            await this._executeWorkOrderAction(dialog, workOrder, "startWork");
+          }.bind(this)
+        });
+      } else if (normalizedStatus === "inprogress") {
+        actionButton = new Button({
+          text: "Complete Task",
+          type: "Emphasized",
+          press: async function () {
+            await this._executeWorkOrderAction(dialog, workOrder, "completeWork");
+          }.bind(this)
+        });
+      } else {
+        contentItems.push(new Text({
+          text: "No available actions.",
+          wrapping: true
+        }));
+      }
+
+      console.log("[technician-actions] Dialog actions", {
+        WorkOrderNo: workOrder.WorkOrderNo,
+        Status: workOrder.Status,
+        normalizedStatus: normalizedStatus,
+        availableAction: actionButton && actionButton.getText()
+      });
+
+      const dialogSettings = {
+        title: "Work Order Actions",
+        contentWidth: "28rem",
+        content: new VBox({
+          renderType: "Bare",
+          items: contentItems
+        }).addStyleClass("sapUiSmallMargin"),
+        endButton: new Button({
+          text: "Close",
+          press: function () {
+            dialog.close();
+          }
+        }),
+        afterClose: function () {
+          dialog.destroy();
+        }
+      };
+
+      if (actionButton) {
+        dialogSettings.beginButton = actionButton;
+      }
+
+      const dialog = new Dialog(dialogSettings);
+
+      dialog.open();
+    },
+
+    _executeWorkOrderAction: async function (dialog, workOrder, action) {
+      const latestWorkOrder = await this._getLatestWorkOrder(workOrder.WorkOrderNo);
+      const current = latestWorkOrder || workOrder;
+      const normalizedStatus = this._normalizeStatus(current.Status);
+      const startWork = action === "startWork";
+      const completeWork = action === "completeWork";
+
+      this._logActionStatus(startWork ? "Start Work" : "Complete Task", current);
+
+      if (startWork && normalizedStatus !== "assigned") {
+        MessageToast.show("Only assigned work orders can be started");
         return;
       }
 
-      visitor(control);
-
-      const aggregations = control.getMetadata().getAllAggregations();
-
-      Object.keys(aggregations).forEach(function (name) {
-        const child = control.getAggregation(name);
-
-        if (Array.isArray(child)) {
-          child.forEach(function (item) {
-            this._visitControls(item, visitor);
-          }, this);
-          return;
-        }
-
-        this._visitControls(child, visitor);
-      }, this);
-    },
-
-    _readWorkOrderFromControl: function (control) {
-      let current = control;
-
-      while (current) {
-        const context = current.getBindingContext && current.getBindingContext();
-
-        if (context) {
-          if (context.getObject) {
-            const object = context.getObject() || {};
-
-            return {
-              WorkOrderNo: object.WorkOrderNo || context.getProperty && context.getProperty("WorkOrderNo"),
-              Status: object.Status || context.getProperty && context.getProperty("Status")
-            };
-          }
-
-          return {
-            WorkOrderNo: context.getProperty && context.getProperty("WorkOrderNo"),
-            Status: context.getProperty && context.getProperty("Status")
-          };
-        }
-
-        current = current.getParent && current.getParent();
+      if (completeWork && normalizedStatus !== "inprogress") {
+        MessageToast.show("Only in-progress work orders can be completed");
+        return;
       }
 
-      return {};
+      await this._postJson(`/odata/v4/work-order/${action}`, {
+        workOrderNo: current.WorkOrderNo
+      });
+
+      MessageToast.show(startWork ? "Work started" : "Task completed");
+
+      if (dialog) {
+        dialog.close();
+      }
+
+      this._refresh();
     },
 
     _getProcedure: async function (equipmentId, maintenanceType) {
@@ -347,10 +368,8 @@ sap.ui.define([
 
     _refresh: function () {
       this._refreshNow();
-      this._scheduleActionVisibilityUpdate();
       setTimeout(function () {
         this._refreshNow();
-        this._scheduleActionVisibilityUpdate();
       }.bind(this), 500);
     },
 

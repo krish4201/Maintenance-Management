@@ -3,14 +3,10 @@
   xmlns:core="sap.ui.core">
   <HBox renderType="Bare" alignItems="Center">
     <Button
-      text="Start Work"
+      text="Actions"
       type="Emphasized"
-      visible="false"
-      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onStartWork" />
-    <Button
-      text="Complete Task"
-      visible="false"
-      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onCompleteWork" />
+      visible="{role>/technician}"
+      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onOpenActionsDialog" />
     <Button
       text="View Procedure"
       visible="{role>/technician}"
