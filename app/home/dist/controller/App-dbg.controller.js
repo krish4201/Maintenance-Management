@@ -415,19 +415,23 @@ sap.ui.define([
         filters.push(`MaintenanceCategory eq '${this._odataString(maintenanceType)}'`);
       }
 
-      const data = await this._getJson(this._procedureUrl(filters));
+      const url = this._procedureUrl(filters);
+
+      console.log("[procedure-list] Request URL", url);
+
+      const data = await this._getJson(url);
 
       return (data.value || [])[0] || null;
     },
 
     _procedureUrl: function (filters) {
-      const params = new URLSearchParams({
-        "$select": "EquipmentID,MaintenanceCategory,MaintenanceProcedure",
-        "$filter": filters.join(" and "),
-        "$top": "1"
-      });
+      const params = [
+        `$select=${encodeURIComponent("EquipmentID,MaintenanceCategory,MaintenanceProcedure")}`,
+        `$filter=${encodeURIComponent(filters.join(" and "))}`,
+        "$top=1"
+      ];
 
-      return `/odata/v4/procedure-service-api/Procedures?${params.toString()}`;
+      return `/odata/v4/procedure-service-api/Procedures?${params.join("&")}`;
     },
 
     _odataString: function (value) {
