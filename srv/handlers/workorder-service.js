@@ -35,6 +35,12 @@ module.exports = cds.service.impl(async function () {
     req.data.CreatedBy = req.data.CreatedBy || userInfo.userId;
     req.data.CreatedAt = req.data.CreatedAt || new Date();
 
+    console.log("[workorder-service] CREATE WorkOrders", {
+      EquipmentID: req.data.EquipmentID,
+      MaintenanceType: req.data.MaintenanceType,
+      ProcedureID: req.data.ProcedureID
+    });
+
     delete req.data.AssignedTo;
     delete req.data.AssignedName;
   });

@@ -321,10 +321,22 @@ sap.ui.define([
       const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status");
       const workOrders = data.value || [];
       const procedures = await Promise.all(workOrders.map(async workOrder => {
+        console.log("[procedure-list] Work order", {
+          WorkOrderNo: workOrder.WorkOrderNo,
+          EquipmentID: workOrder.EquipmentID,
+          MaintenanceType: workOrder.MaintenanceType
+        });
+
         const procedure = await this._getProcedureForEquipment(
           workOrder.EquipmentID,
           workOrder.MaintenanceType
         );
+
+        console.log("[procedure-list] Retrieved procedure", {
+          WorkOrderNo: workOrder.WorkOrderNo,
+          EquipmentID: procedure?.EquipmentID,
+          MaintenanceCategory: procedure?.MaintenanceCategory
+        });
 
         return {
           WorkOrderNo: workOrder.WorkOrderNo,
@@ -397,18 +409,29 @@ sap.ui.define([
         return null;
       }
 
-      const encoded = encodeURIComponent(String(equipmentId).replace(/'/g, "''"));
-      const filters = [`EquipmentID eq '${encoded}'`];
+      const filters = [`EquipmentID eq '${this._odataString(equipmentId)}'`];
 
       if (maintenanceType) {
-        const category = encodeURIComponent(String(maintenanceType).replace(/'/g, "''"));
-
-        filters.push(`MaintenanceCategory eq '${category}'`);
+        filters.push(`MaintenanceCategory eq '${this._odataString(maintenanceType)}'`);
       }
 
-      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,MaintenanceCategory,MaintenanceProcedure&$filter=${filters.join(" and ")}&$top=1`);
+      const data = await this._getJson(this._procedureUrl(filters));
 
       return (data.value || [])[0] || null;
+    },
+
+    _procedureUrl: function (filters) {
+      const params = new URLSearchParams({
+        "$select": "EquipmentID,MaintenanceCategory,MaintenanceProcedure",
+        "$filter": filters.join(" and "),
+        "$top": "1"
+      });
+
+      return `/odata/v4/procedure-service-api/Procedures?${params.toString()}`;
+    },
+
+    _odataString: function (value) {
+      return String(value || "").replace(/'/g, "''");
     },
 
     _mapMaintenanceType: function (category) {

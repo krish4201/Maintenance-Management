@@ -8,7 +8,19 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'Procedures', async req => {
 
-        return procedureSrv.run(req.query)
+        const lookup =
+            procedureLookupFromWhere(
+                req.query?.SELECT?.where
+            )
+        const result =
+            await procedureSrv.run(req.query)
+
+        logProcedureRead(
+            lookup,
+            result
+        )
+
+        return result
 
     })
 
@@ -177,5 +189,68 @@ function isDuplicateKeyError(error) {
     return message.includes('key value is already in use') ||
         message.includes('duplicate') ||
         message.includes('already exists')
+
+}
+
+function procedureLookupFromWhere(where) {
+
+    return {
+        EquipmentID: findWhereValue(where, 'EquipmentID'),
+        MaintenanceCategory: findWhereValue(where, 'MaintenanceCategory')
+    }
+
+}
+
+function findWhereValue(where, field) {
+
+    if(!Array.isArray(where)){
+
+        return undefined
+
+    }
+
+    for(let index = 0; index < where.length - 2; index += 1){
+
+        if(
+            where[index]?.ref?.[0] === field &&
+            where[index + 1] === '='
+        ){
+
+            return where[index + 2]?.val
+
+        }
+
+    }
+
+    return undefined
+
+}
+
+function logProcedureRead(lookup, result) {
+
+    if(!lookup.EquipmentID && !lookup.MaintenanceCategory){
+
+        return
+
+    }
+
+    const rows =
+        Array.isArray(result)
+            ? result
+            : result
+                ? [result]
+                : []
+
+    console.log(
+        '[procedure-service] READ Procedures',
+        {
+            requestedEquipmentID: lookup.EquipmentID,
+            requestedMaintenanceType: lookup.MaintenanceCategory,
+            returned: rows.map(row => ({
+                EquipmentID: row.EquipmentID,
+                MaintenanceCategory: row.MaintenanceCategory
+            }))
+        }
+    )
 
 }

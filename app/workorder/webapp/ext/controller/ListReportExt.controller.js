@@ -52,10 +52,21 @@ sap.ui.define([
         return;
       }
 
+      console.log("[procedure-view] Work order", {
+        WorkOrderNo: workOrder.WorkOrderNo,
+        EquipmentID: workOrder.EquipmentID || workOrder.ProcedureID,
+        MaintenanceType: workOrder.MaintenanceType
+      });
+
       const procedure = await this._getProcedure(
         workOrder.EquipmentID || workOrder.ProcedureID,
         workOrder.MaintenanceType
       );
+
+      console.log("[procedure-view] Retrieved procedure", {
+        EquipmentID: procedure?.EquipmentID,
+        MaintenanceCategory: procedure?.MaintenanceCategory
+      });
 
       this._showProcedureDialog(workOrder, procedure);
     },
@@ -97,18 +108,29 @@ sap.ui.define([
         return null;
       }
 
-      const encoded = encodeURIComponent(String(equipmentId).replace(/'/g, "''"));
-      const filters = [`EquipmentID eq '${encoded}'`];
+      const filters = [`EquipmentID eq '${this._odataString(equipmentId)}'`];
 
       if (maintenanceType) {
-        const category = encodeURIComponent(String(maintenanceType).replace(/'/g, "''"));
-
-        filters.push(`MaintenanceCategory eq '${category}'`);
+        filters.push(`MaintenanceCategory eq '${this._odataString(maintenanceType)}'`);
       }
 
-      const data = await this._getJson(`/odata/v4/procedure-service-api/Procedures?$select=EquipmentID,EquipmentName,EquipmentType,MaintenanceCategory,MaintenanceProcedure&$filter=${filters.join(" and ")}&$top=1`);
+      const data = await this._getJson(this._procedureUrl(filters));
 
       return (data.value || [])[0] || null;
+    },
+
+    _procedureUrl: function (filters) {
+      const params = new URLSearchParams({
+        "$select": "EquipmentID,EquipmentName,EquipmentType,MaintenanceCategory,MaintenanceProcedure",
+        "$filter": filters.join(" and "),
+        "$top": "1"
+      });
+
+      return `/odata/v4/procedure-service-api/Procedures?${params.toString()}`;
+    },
+
+    _odataString: function (value) {
+      return String(value || "").replace(/'/g, "''");
     },
 
     _showProcedureDialog: function (workOrder, procedure) {
