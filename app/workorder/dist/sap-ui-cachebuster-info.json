@@ -1,14 +1,14 @@
 {
-  "ext/controller/ObjectPageExt-dbg.controller.js": 1780764853116,
-  "i18n/i18n_en.properties": 1780764853116,
+  "ext/controller/ObjectPageExt.controller.js.map": 1780817847877,
+  "i18n/i18n.properties": 1780764853116,
   "Component.js": 1780764853116,
   "manifest.json": 1780764853116,
   "ext/controller/ObjectPageExt.controller.js": 1780764853116,
+  "ext/controller/ObjectPageExt-dbg.controller.js": 1780764853116,
+  "i18n/i18n_en.properties": 1780764853116,
   "Component-dbg.js": 1780764853116,
-  "Component.js.map": 1780765434107,
-  "i18n/i18n.properties": 1780764853116,
-  "ext/controller/ObjectPageExt.controller.js.map": 1780765434113,
-  "Component-preload.js": 1780765434228,
-  "Component-preload.js.map": 1780765434228,
+  "Component.js.map": 1780817847874,
+  "Component-preload.js": 1780817847972,
+  "Component-preload.js.map": 1780817847972,
   "index.html": 1780764853116
 }
