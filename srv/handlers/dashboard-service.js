@@ -19,7 +19,7 @@ module.exports = cds.service.impl(async function () {
 
   this.on("getSummary", async () => {
     const orders = await workorderSrv.run(
-      SELECT.from(WorkOrders).columns("Status")
+      SELECT.from(WorkOrders).columns("Status", "AssignedName", "AssignedTo")
     );
     const [equipmentCount, procedureCount] = await Promise.all([
       countEquipments(),
@@ -32,6 +32,8 @@ module.exports = cds.service.impl(async function () {
         ["Open", "Created", "Assigned", "InProgress"].includes(order.Status)
       ).length,
       assignedOrders: orders.filter((order) => order.Status === "Assigned")
+        .length,
+      unassignedOrders: orders.filter(order => !order.AssignedName && !order.AssignedTo)
         .length,
       completedOrders: orders.filter((order) => order.Status === "Completed")
         .length,

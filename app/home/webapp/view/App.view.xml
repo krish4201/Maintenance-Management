@@ -42,38 +42,46 @@
                   type="Emphasized"
                   icon="sap-icon://employee-approvals"
                   press=".onAssignTechnician" />
-                <Button
-                  text="Work Orders"
-                  icon="sap-icon://activity-items"
-                  press=".onOpenWorkOrders" />
               </HBox>
             </HBox>
           </VBox>
 
           <FlexBox
-            class="kpiGrid"
+            class="linkGrid"
             wrap="Wrap"
             renderType="Bare">
-            <VBox class="kpiCard">
-              <ObjectStatus text="Work Orders" icon="sap-icon://activity-items" />
-              <ObjectNumber number="{home>/summary/totalWorkOrders}" emphasized="true" />
-            </VBox>
-            <VBox class="kpiCard">
-              <ObjectStatus text="Open" icon="sap-icon://pending" state="Warning" />
-              <ObjectNumber number="{home>/summary/openWorkOrders}" state="Warning" />
-            </VBox>
-            <VBox class="kpiCard">
-              <ObjectStatus text="Assigned" icon="sap-icon://employee-approvals" state="Information" />
-              <ObjectNumber number="{home>/summary/assignedOrders}" state="Information" />
-            </VBox>
-            <VBox class="kpiCard">
-              <ObjectStatus text="Completed" icon="sap-icon://sys-enter-2" state="Success" />
-              <ObjectNumber number="{home>/summary/completedOrders}" state="Success" />
-            </VBox>
-            <VBox class="kpiCard">
-              <ObjectStatus text="Equipment" icon="sap-icon://machine" />
-              <ObjectNumber number="{home>/summary/equipmentCount}" emphasized="true" />
-            </VBox>
+            <GenericTile
+              header="Work Orders"
+              subheader="View and assign work"
+              press=".onOpenWorkOrders">
+              <TileContent>
+                <NumericContent icon="sap-icon://activity-items" value="{home>/summary/totalWorkOrders}" />
+              </TileContent>
+            </GenericTile>
+            <GenericTile
+              header="Unassigned"
+              subheader="Work orders waiting for technician"
+              press=".onAssignTechnician">
+              <TileContent>
+                <NumericContent icon="sap-icon://employee-approvals" value="{home>/summary/unassignedOrders}" />
+              </TileContent>
+            </GenericTile>
+            <GenericTile
+              header="View Equipment"
+              subheader="Open master equipment"
+              press=".onOpenEquipment">
+              <TileContent>
+                <NumericContent icon="sap-icon://machine" value="{home>/summary/equipmentCount}" />
+              </TileContent>
+            </GenericTile>
+            <GenericTile
+              header="View Procedures"
+              subheader="Open procedure list"
+              press=".onShowUniqueProcedures">
+              <TileContent>
+                <NumericContent icon="sap-icon://list" value="{home>/summary/procedureCount}" />
+              </TileContent>
+            </GenericTile>
           </FlexBox>
 
           <FlexBox

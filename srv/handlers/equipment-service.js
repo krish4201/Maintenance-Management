@@ -8,7 +8,15 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'Equipments', async req => {
 
-        return equipmentSrv.run(req.query)
+        const { ZC_MASTER_EQUIPMENT } =
+            equipmentSrv.entities
+
+        return equipmentSrv.run(
+            remoteQuery(
+                req.query,
+                ZC_MASTER_EQUIPMENT
+            )
+        )
 
     })
 
@@ -45,3 +53,66 @@ module.exports = cds.service.impl(async function () {
     })
 
 })
+
+function remoteQuery(query, entity) {
+
+    const cloned =
+        JSON.parse(
+            JSON.stringify(query)
+        )
+
+    replaceEntityRef(
+        cloned,
+        entity.name
+    )
+
+    return cloned
+
+}
+
+function replaceEntityRef(value, targetName) {
+
+    if(Array.isArray(value)){
+
+        value.forEach(
+            entry =>
+                replaceEntityRef(
+                    entry,
+                    targetName
+                )
+        )
+
+        return
+
+    }
+
+    if(!value || typeof value !== 'object'){
+
+        return
+
+    }
+
+    if(
+        Array.isArray(value.ref) &&
+        [
+            'EquipmentServiceAPI.Equipments',
+            'Equipments'
+        ].includes(value.ref[0])
+    ){
+
+        value.ref[0] =
+            targetName
+
+    }
+
+    Object
+        .values(value)
+        .forEach(
+            entry =>
+                replaceEntityRef(
+                    entry,
+                    targetName
+                )
+        )
+
+}

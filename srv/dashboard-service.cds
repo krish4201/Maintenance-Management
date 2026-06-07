@@ -2,6 +2,7 @@ type DashboardSummary {
     totalWorkOrders : Integer;
     openWorkOrders  : Integer;
     assignedOrders  : Integer;
+    unassignedOrders : Integer;
     completedOrders : Integer;
     equipmentCount  : Integer;
     procedureCount  : Integer;
