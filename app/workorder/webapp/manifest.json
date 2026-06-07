@@ -80,6 +80,15 @@
     "resources": {
       "css": []
     },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ListReport.ListReportController": {
+            "controllerName": "maintenance.workorder.workorder.ext.controller.ListReportExt"
+          }
+        }
+      }
+    },
     "routing": {
       "config": {},
       "routes": [
@@ -114,6 +123,16 @@
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable"
+                  },
+                  "columns": {
+                    "TechnicianActions": {
+                      "header": "Actions",
+                      "template": "maintenance.workorder.workorder.ext.fragment.TechnicianActions",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "DataField::Status"
+                      }
+                    }
                   }
                 }
               }

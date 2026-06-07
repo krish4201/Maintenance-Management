@@ -203,10 +203,6 @@
                 <Title text="Technician Workspace" level="H2" />
                 <Text text="Work orders and procedures assigned to you" class="heroSubtitle" />
               </VBox>
-              <HBox class="heroActions">
-                <Button text="Start Work" type="Emphasized" icon="sap-icon://begin" press=".onStartSelectedWork" />
-                <Button text="Complete Work" icon="sap-icon://complete" press=".onCompleteSelectedWork" />
-              </HBox>
             </HBox>
             <VBox class="workSelector">
               <Label text="Assigned Work Order" />

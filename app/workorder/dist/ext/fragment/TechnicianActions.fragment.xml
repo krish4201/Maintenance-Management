@@ -1,0 +1,19 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+  <HBox renderType="Bare" alignItems="Center">
+    <Button
+      text="Start Work"
+      type="Emphasized"
+      visible="{= ${role>/technician} &amp;&amp; (${Status} === 'Open' || ${Status} === 'Assigned') }"
+      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onStartWork" />
+    <Button
+      text="Complete Work"
+      visible="{= ${role>/technician} &amp;&amp; ${Status} === 'InProgress' }"
+      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onCompleteWork" />
+    <Button
+      text="View Procedure"
+      visible="{role>/technician}"
+      press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onViewProcedure" />
+  </HBox>
+</core:FragmentDefinition>
