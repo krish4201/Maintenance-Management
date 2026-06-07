@@ -15,8 +15,19 @@ sap.ui.define([
   return Controller.extend("maintenance.home.controller.App", {
     onInit: function () {
       this._model = this.getOwnerComponent().getModel("home");
+      this._onWindowFocus = this._refreshDashboardOnReturn.bind(this);
+      this._onPageShow = this._refreshDashboardOnReturn.bind(this);
+
+      window.addEventListener("focus", this._onWindowFocus);
+      window.addEventListener("pageshow", this._onPageShow);
 
       this._initialize();
+    },
+
+    onExit: function () {
+      window.removeEventListener("focus", this._onWindowFocus);
+      window.removeEventListener("pageshow", this._onPageShow);
+      this._stopTechnicianRefreshTimer();
     },
 
     _initialize: async function () {
@@ -31,6 +42,7 @@ sap.ui.define([
 
         if (role === "Technician") {
           await this._loadTechnicianSummary();
+          this._startTechnicianRefreshTimer();
           return;
         }
 
@@ -238,6 +250,7 @@ sap.ui.define([
     },
 
     onShowProcedures: async function () {
+      await this._refreshTechnicianProcedureCount();
       await this._loadProcedureList();
       this.byId("procedureListDialog").open();
     },
@@ -296,7 +309,9 @@ sap.ui.define([
     },
 
     _loadTechnicianSummary: async function () {
-      const workOrders = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
+      console.log("[technician-dashboard] Refresh technician summary");
+
+      const workOrders = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
       const assignedOrders = workOrders.value || [];
 
       this._setProperty("/assignedCount", assignedOrders.length);
@@ -305,6 +320,8 @@ sap.ui.define([
       if (!this._model.getProperty("/selectedWorkOrder") && assignedOrders.length) {
         this._setProperty("/selectedWorkOrder", assignedOrders[0].WorkOrderNo);
       }
+
+      await this._refreshTechnicianProcedureCount(assignedOrders);
     },
 
     _loadAssignableWorkOrders: async function () {
@@ -315,6 +332,100 @@ sap.ui.define([
     _loadTechnicians: async function () {
       const data = await this._getJson("/odata/v4/role/getTechnicians()");
       this._setProperty("/technicians", data.value || data);
+    },
+
+    _refreshDashboardOnReturn: async function () {
+      const role = this._model && this._model.getProperty("/role");
+
+      if (!role) {
+        return;
+      }
+
+      console.log("[home-dashboard] Refresh on return", {
+        role: role
+      });
+
+      if (role === "Technician") {
+        await this._loadTechnicianSummary();
+        return;
+      }
+
+      await this._loadDashboard(role);
+    },
+
+    _startTechnicianRefreshTimer: function () {
+      if (this._technicianRefreshTimer) {
+        return;
+      }
+
+      console.log("[technician-dashboard] Start auto refresh timer");
+
+      this._technicianRefreshTimer = setInterval(async function () {
+        if (this._technicianRefreshInProgress) {
+          return;
+        }
+
+        this._technicianRefreshInProgress = true;
+
+        try {
+          await this._loadTechnicianSummary();
+        } finally {
+          this._technicianRefreshInProgress = false;
+        }
+      }.bind(this), 30000);
+    },
+
+    _stopTechnicianRefreshTimer: function () {
+      if (!this._technicianRefreshTimer) {
+        return;
+      }
+
+      clearInterval(this._technicianRefreshTimer);
+      this._technicianRefreshTimer = null;
+    },
+
+    _refreshTechnicianProcedureCount: async function (workOrders) {
+      const role = this._model.getProperty("/role");
+
+      if (role !== "Technician") {
+        return;
+      }
+
+      console.log("[technician-dashboard] Refresh procedure tile count");
+
+      const assignedOrders = workOrders || await this._getTechnicianWorkOrders();
+      const uniqueProcedures = new Set();
+
+      for (const workOrder of assignedOrders) {
+        const procedure = await this._getProcedureForEquipment(
+          workOrder.EquipmentID || workOrder.ProcedureID,
+          workOrder.MaintenanceType
+        );
+
+        if (!procedure) {
+          continue;
+        }
+
+        uniqueProcedures.add([
+          procedure.EquipmentID || workOrder.ProcedureID || workOrder.EquipmentID || "",
+          this._mapMaintenanceType(procedure.MaintenanceCategory || workOrder.MaintenanceType)
+        ].join("|"));
+      }
+
+      console.log("[technician-dashboard] Procedure tile count updated", {
+        workOrderCount: assignedOrders.length,
+        procedureCount: uniqueProcedures.size
+      });
+
+      this._setProperty("/technicianProcedureCount", uniqueProcedures.size);
+    },
+
+    _getTechnicianWorkOrders: async function () {
+      console.log("[technician-dashboard] Fetch technician work orders for procedure count");
+
+      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
+
+      return data.value || [];
     },
 
     _loadProcedureList: async function () {

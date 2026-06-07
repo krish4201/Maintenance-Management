@@ -225,7 +225,7 @@
               subheader="Show procedures for my orders"
               press=".onShowProcedures">
               <TileContent>
-                <NumericContent icon="sap-icon://list" value="{home>/procedureList/length}" />
+                <NumericContent icon="sap-icon://list" value="{home>/technicianProcedureCount}" />
               </TileContent>
             </GenericTile>
           </FlexBox>

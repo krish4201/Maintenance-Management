@@ -17,6 +17,7 @@ sap.ui.define([
         statusChart: [],
         priorityChart: [],
         assignedCount: 0,
+        technicianProcedureCount: 0,
         create: {
           EquipmentID: "",
           EquipmentName: "",
