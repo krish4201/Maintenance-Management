@@ -1,15 +1,18 @@
 <core:FragmentDefinition
   xmlns="sap.m"
   xmlns:core="sap.ui.core">
-  <HBox renderType="Bare" alignItems="Center">
+  <HBox
+    renderType="Bare"
+    alignItems="Center"
+    core:require="{StatusFormatter: 'maintenance/workorder/workorder/ext/model/StatusFormatter'}">
     <Button
       text="Start Work"
       type="Emphasized"
-      visible="{= ${role>/technician} &amp;&amp; ${Status} === 'Assigned' }"
+      visible="{ parts: [{ path: 'Status' }, { path: 'role>/technician' }], formatter: 'StatusFormatter.isStartVisible' }"
       press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onStartWork" />
     <Button
       text="Complete Task"
-      visible="{= ${role>/technician} &amp;&amp; (${Status} === 'InProgress' || ${Status} === 'In Progress') }"
+      visible="{ parts: [{ path: 'Status' }, { path: 'role>/technician' }], formatter: 'StatusFormatter.isCompleteVisible' }"
       press=".extension.maintenance.workorder.workorder.ext.controller.ListReportExt.onCompleteWork" />
     <Button
       text="View Procedure"

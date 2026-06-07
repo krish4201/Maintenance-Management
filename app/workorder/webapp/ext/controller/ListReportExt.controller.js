@@ -24,6 +24,8 @@ sap.ui.define([
         return;
       }
 
+      this._logActionStatus("Start Work", workOrder);
+
       if (this._normalizeStatus(workOrder.Status) !== "assigned") {
         MessageToast.show("Only assigned work orders can be started");
         return;
@@ -42,6 +44,8 @@ sap.ui.define([
       if (!workOrder) {
         return;
       }
+
+      this._logActionStatus("Complete Task", workOrder);
 
       if (this._normalizeStatus(workOrder.Status) !== "inprogress") {
         MessageToast.show("Only in-progress work orders can be completed");
@@ -117,6 +121,15 @@ sap.ui.define([
       return String(status || "")
         .replace(/\s+/g, "")
         .toLowerCase();
+    },
+
+    _logActionStatus: function (action, workOrder) {
+      console.log("[technician-actions] Action status", {
+        action: action,
+        WorkOrderNo: workOrder.WorkOrderNo,
+        Status: workOrder.Status,
+        normalizedStatus: this._normalizeStatus(workOrder.Status)
+      });
     },
 
     _getProcedure: async function (equipmentId, maintenanceType) {
