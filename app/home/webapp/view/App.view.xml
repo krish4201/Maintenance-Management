@@ -8,10 +8,10 @@
   xmlns:viz.data="sap.viz.ui5.data"
   xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
   <App>
-    <Page
+    <!-- <Page
       title="Dashboard"
       busy="{home>/loading}"
-      class="homePage">
+      class="homePage"> -->
       <!-- <headerContent>
         <Button
           text="{home>/name} - {home>/role}"
@@ -19,7 +19,7 @@
           icon="sap-icon://person-placeholder"
           enabled="false" />
       </headerContent> -->
-      <content>
+      <content busy="{home>/loading}">
         <MessageStrip
           text="{home>/error}"
           type="Error"
@@ -93,7 +93,7 @@
               <viz:VizFrame
                 id="assignedChart"
                 width="100%"
-                height="380px"
+                height="350px"
                 vizType="donut"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>
@@ -118,7 +118,7 @@
               <viz:VizFrame
                 id="statusChart"
                 width="100%"
-                height="380px"
+                height="350px"
                 vizType="column"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>
@@ -408,6 +408,6 @@
           </endButton>
         </Dialog>
       </dependents>
-    </Page>
+    <!-- </Page> -->
   </App>
 </mvc:View>
