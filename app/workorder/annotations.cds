@@ -14,7 +14,6 @@ annotate service.WorkOrders with {
     Status        @Common.Label : 'Status';
     CreatedBy     @Common.Label : 'Created By';
     CreatedAt     @Common.Label : 'Created On';
-    DueDate       @Common.Label : 'Due Date';
 };
 
 annotate service.WorkOrders with @(
@@ -67,11 +66,6 @@ annotate service.WorkOrders with @(
             $Type : 'UI.DataField',
             Label : 'Technician',
             Value : AssignedName
-        },
-        {
-            $Type : 'UI.DataField',
-            Label : 'Due Date',
-            Value : DueDate
         }
     ],
     UI.FieldGroup #Planning : {
