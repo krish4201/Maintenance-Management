@@ -8,10 +8,10 @@
   xmlns:viz.data="sap.viz.ui5.data"
   xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
   <App>
-    <!-- <Page
+    <Page
       title="Dashboard"
       busy="{home>/loading}"
-      class="homePage"> -->
+      class="homePage">
       <!-- <headerContent>
         <Button
           text="{home>/name} - {home>/role}"
@@ -19,7 +19,7 @@
           icon="sap-icon://person-placeholder"
           enabled="false" />
       </headerContent> -->
-      <content busy="{home>/loading}">
+      <content>
         <MessageStrip
           text="{home>/error}"
           type="Error"
@@ -408,6 +408,6 @@
           </endButton>
         </Dialog>
       </dependents>
-    <!-- </Page> -->
+    </Page>
   </App>
 </mvc:View>
