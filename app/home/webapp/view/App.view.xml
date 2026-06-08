@@ -14,7 +14,7 @@
       class="homePage">
       <headerContent>
         <Button
-          text="{home>/role}"
+          text="{home>/name} - {home>/role}"
           type="Emphasized"
           icon="sap-icon://person-placeholder"
           enabled="false" />
