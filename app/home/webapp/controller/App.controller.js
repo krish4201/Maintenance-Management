@@ -431,7 +431,7 @@ sap.ui.define([
     },
 
     _loadProcedureList: async function () {
-      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status");
+      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
       const workOrders = data.value || [];
       const procedures = await Promise.all(workOrders.map(async workOrder => {
         console.log("[procedure-list] Work order", {
