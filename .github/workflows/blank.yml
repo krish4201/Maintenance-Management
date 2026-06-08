@@ -1,0 +1,64 @@
+name: Build and Deploy CAP App
+
+on:
+  push:
+    branches:
+      - Update
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          
+      - name: Install Cloud Foundry CLI (cf8)
+        run: |
+          # Add CF public key
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key \
+            | sudo gpg --dearmor -o /usr/share/keyrings/cloudfoundry-cli.gpg
+
+          # Add CF repository
+          echo "deb [signed-by=/usr/share/keyrings/cloudfoundry-cli.gpg] https://packages.cloudfoundry.org/debian stable main" \
+            | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+
+          # Install CF CLI
+          sudo apt-get update
+          sudo apt-get install -y cf8-cli
+          cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org
+          cf install-plugin multiapps -r CF-Community -f
+
+    
+      - name: Verify CF CLI
+        run: cf version
+
+
+      - name: CF CLI Login
+        run: |
+          cf api https://api.cf.ap21.hana.ondemand.com
+          cf auth rkkramesh2001@gmail.com Rkk_@2001
+          cf target -o abb7905ftrial -s dev
+
+      - name: Verify CF Target
+        run: cf target
+        
+      - name: CF CLI Help
+        run: cf help -a
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install MBT
+        run: npm install -g mbt
+
+      - name: Build MTA archive
+        run: mbt build
+
+      - name: Deploy MTA
+        run: cf deploy mta_archives/*.mtar -f
