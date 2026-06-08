@@ -25,7 +25,7 @@
       };
 
       const allApps = {
-        "Shell-home": {
+        "Home-display": {
           title: "Maintenance Home",
           description: "Role-based dashboard",
           icon: "sap-icon://home",
@@ -54,7 +54,7 @@
       function appsForRole(role) {
         if (role === "Technician") {
           return {
-            "Shell-home": allApps["Shell-home"],
+            "Home-display": allApps["Home-display"],
             "WorkOrders-manage": allApps["WorkOrders-manage"]
           };
         }
@@ -73,7 +73,7 @@
               componentData: {
                 config: {
                   enableSearch: false,
-                  rootIntent: "Shell-home"
+                  rootIntent: "Home-display"
                 }
               }
             }
