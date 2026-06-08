@@ -1,6 +1,23 @@
 {
   "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout",
+    "logoutPage": "/logged-out.html",
+    "logoutMethod": "GET"
+  },
   "routes": [
+    {
+      "source": "^/logged-out.html$",
+      "target": "/logged-out.html",
+      "localDir": "webapp",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/logout.html$",
+      "target": "/logout.html",
+      "localDir": "webapp",
+      "authenticationType": "none"
+    },
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
@@ -22,8 +39,14 @@
     },
     {
       "source": "^/$",
-      "target": "/maintenancehome/index.html",
-      "service": "html5-apps-repo-rt",
+      "target": "/index.html",
+      "localDir": "webapp",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/index.html$",
+      "target": "/index.html",
+      "localDir": "webapp",
       "authenticationType": "xsuaa"
     },
     {

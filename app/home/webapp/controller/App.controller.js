@@ -57,11 +57,11 @@ sap.ui.define([
     },
 
     onOpenWorkOrders: function () {
-      window.location.href = WORK_ORDER_APP;
+      this._navigateToApp("WorkOrders-manage", WORK_ORDER_APP);
     },
 
     onOpenEquipment: function () {
-      window.location.href = EQUIPMENT_APP;
+      this._navigateToApp("Equipment-display", EQUIPMENT_APP);
     },
 
     onCreateWorkOrder: async function () {
@@ -559,6 +559,31 @@ sap.ui.define([
       }
 
       return "Preventive Maintenance";
+    },
+
+    _navigateToApp: function (shellHash, fallbackUrl) {
+      const shell = window.sap && window.sap.ushell && window.sap.ushell.Container;
+
+      if (!shell) {
+        window.location.href = fallbackUrl;
+        return;
+      }
+
+      const service = typeof shell.getServiceAsync === "function"
+        ? shell.getServiceAsync("CrossApplicationNavigation")
+        : Promise.resolve(shell.getService("CrossApplicationNavigation"));
+
+      service
+        .then(function (navigation) {
+          navigation.toExternal({
+            target: {
+              shellHash: "#" + shellHash
+            }
+          });
+        })
+        .catch(function () {
+          window.location.href = fallbackUrl;
+        });
     },
 
     _updateSelectedWork: async function (action) {
