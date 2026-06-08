@@ -1,5 +1,9 @@
 {
   "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout",
+    "logoutPage": "/"
+  },
   "routes": [
     {
       "source": "^/odata/(.*)$",
