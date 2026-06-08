@@ -93,7 +93,7 @@
               <viz:VizFrame
                 id="assignedChart"
                 width="100%"
-                height="320px"
+                height="380px"
                 vizType="donut"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>
@@ -113,12 +113,12 @@
               </viz:VizFrame>
             </VBox>
 
-            <VBox class="chartPanel sapUiMediumMarginTop">
+            <VBox class="chartPanel">
               <Title text="Work Orders by Status" level="H3" class="panelTitle" />
               <viz:VizFrame
                 id="statusChart"
                 width="100%"
-                height="320px"
+                height="380px"
                 vizType="column"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>

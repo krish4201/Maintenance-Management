@@ -393,26 +393,33 @@ sap.ui.define([
     },
 
     _hideActionsColumn: function () {
-    const table = this.base.byId(
-        "maintenance.workorder.workorder::WorkOrdersList--fe::table::WorkOrders::LineItem"
-    );
 
-    if (!table) {
-        return;
-    }
+      const tables = this.base.getView().findAggregatedObjects(
+      true,
+      oControl => oControl.isA("sap.ui.mdc.Table")
+      );
 
-    const columns = table.getColumns();
+      MessageToast.show("Tables: " + tables);
+      const table = this.base.byId(
+          "maintenance.workorder.workorder::WorkOrdersList--fe::table::WorkOrders::LineItem"
+      );
 
-    columns.forEach(function (column) {
-        if (column.getHeader &&
-            column.getHeader() &&
-            column.getHeader().getText &&
-            column.getHeader().getText() === "Actions") {
+      if (!table) {
+          return;
+      }
 
-            column.setVisible(false);
-        }
-    });
-}
+      const columns = table.getColumns();
+
+      columns.forEach(function (column) {
+          if (column.getHeader &&
+              column.getHeader() &&
+              column.getHeader().getText &&
+              column.getHeader().getText() === "Actions") {
+
+              column.setVisible(false);
+          }
+      });
+  }
 
   });
 });
