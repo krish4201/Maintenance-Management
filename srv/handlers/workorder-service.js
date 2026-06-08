@@ -14,9 +14,9 @@ module.exports = cds.service.impl(async function () {
       });
     }
 
-    if (userInfo.role === "Planner" && req.query?.SELECT?.one) {
-      req.reject(403, "Planner cannot open work order object page");
-    }
+    // if (userInfo.role === "Planner" && req.query?.SELECT?.one) {
+    //   req.reject(403, "Planner cannot open work order object page");
+    // }
   });
 
   this.on("READ", "WorkOrders", req => workorderSrv.run(req.query));
