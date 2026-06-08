@@ -127,7 +127,7 @@ sap.ui.define([
         await this._postJson("/odata/v4/work-order/WorkOrders", payload);
         MessageToast.show("Work order created");
         this.byId("createWorkOrderDialog").close();
-        this.onOpenWorkOrders();
+        // this.onOpenWorkOrders();
       } catch (error) {
         this._setProperty("/error", error.message || "Unable to create work order");
       }

@@ -27,9 +27,6 @@ annotate service.WorkOrders with @(
         Status,
         Priority,
         MaintenanceType,
-        EquipmentName,
-        AssignedName,
-        ProcedureID
     ],
     UI.LineItem : [
         {

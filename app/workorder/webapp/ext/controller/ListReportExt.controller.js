@@ -86,7 +86,13 @@ sap.ui.define([
       try {
         const userInfo = await this._getJson("/odata/v4/role/getUserInfo()");
 
-        model.setProperty("/technician", userInfo.role === "Technician");
+        const isTechnician = userInfo.role === "Technician";
+
+        model.setProperty("/technician", isTechnician);
+
+        if (!isTechnician) {
+            this._hideActionsColumn();
+        }
       } catch (error) {
         model.setProperty("/technician", false);
       }
@@ -384,6 +390,29 @@ sap.ui.define([
       if (model && model.refresh) {
         model.refresh(true);
       }
+    },
+
+    _hideActionsColumn: function () {
+    const table = this.base.byId(
+        "maintenance.workorder.workorder::WorkOrdersList--fe::table::WorkOrders::LineItem"
+    );
+
+    if (!table) {
+        return;
     }
+
+    const columns = table.getColumns();
+
+    columns.forEach(function (column) {
+        if (column.getHeader &&
+            column.getHeader() &&
+            column.getHeader().getText &&
+            column.getHeader().getText() === "Actions") {
+
+            column.setVisible(false);
+        }
+    });
+}
+
   });
 });
