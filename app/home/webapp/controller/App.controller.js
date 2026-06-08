@@ -34,7 +34,9 @@ sap.ui.define([
       try {
         const user = await this._getJson("/odata/v4/role/getUserInfo()");
         const role = user.role || "";
-
+        const userName = user.userName || "";
+        
+        this._model.setProperty("/name", userName);
         this._model.setProperty("/role", role);
         this._model.setProperty("/supervisor", role === "Supervisor");
         this._model.setProperty("/planner", role === "Planner");
