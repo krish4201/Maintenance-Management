@@ -87,7 +87,7 @@
                   firstName: fullName,
                   lastName: "",
                   fullName: fullName,
-                  logoutUrl: "/do/logout"
+                  logoutUrl: "/logout.html"
                 }
               }
             }
@@ -109,6 +109,16 @@
             sap.ui.getCore().attachInit(function () {
               sap.ushell.Container.createRenderer("fiori2", true).then(function (renderer) {
                 renderer.placeAt("content");
+
+                if (renderer.addUserAction) {
+                  renderer.addUserAction({
+                    text: "Sign Out",
+                    icon: "sap-icon://log",
+                    press: function () {
+                      window.location.replace("/logout.html");
+                    }
+                  });
+                }
               });
 
               sap.ushell.Container.logout = function () {
@@ -118,17 +128,7 @@
                   hostname !== "[::1]" &&
                   !hostname.includes("applicationstudio.cloud.sap");
 
-                if (isBtpDeployed) {
-                  window.location.replace("/do/logout");
-                  return;
-                }
-
-                const xhr = new XMLHttpRequest();
-                xhr.open("GET", "/", true, "___logout___", "___logout___");
-                xhr.onloadend = function () {
-                  window.location.replace("/logged-out.html");
-                };
-                xhr.send();
+                window.location.replace(isBtpDeployed ? "/logout.html" : "/logged-out.html");
               };
             });
           };
