@@ -3,7 +3,7 @@ name: Build and Deploy CAP App
 on:
   push:
     branches:
-      - Update
+      - main
 
 jobs:
   build:
