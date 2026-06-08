@@ -11,6 +11,7 @@ sap.ui.define([
 
     init: function () {
       this.setModel(new JSONModel({
+        name:"",
         role: "",
         summary: {},
         assignedChart: [],
