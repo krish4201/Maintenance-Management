@@ -372,8 +372,9 @@
               <Label text="Location" />
               <Input value="{home>/createEquipment/location}" maxLength="100" />
 
-              <Label text="Last Maintained By" />
-              <Input value="{home>/createEquipment/last_maintained_by}" maxLength="100" />
+              <!-- <Label text="Last Maintained By" />
+              <Input value="{home>/createEquipment/last_maintained_by}" maxLength="100" /> -->
+              
 
               <Label text="Status" required="true" />
               <Select selectedKey="{home>/createEquipment/status}" width="100%">

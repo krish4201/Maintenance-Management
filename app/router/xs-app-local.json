@@ -14,9 +14,22 @@
       "authenticationType": "none"
     },
     {
-      "source": "^/$",
-      "target": "/maintenance.home/index.html",
+      "source": "^/odata/(.*)$",
+      "target": "/odata/$1",
       "destination": "srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/$",
+      "target": "/index.html",
+      "localDir": "webapp",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/index.html$",
+      "target": "/index.html",
+      "localDir": "webapp",
       "authenticationType": "xsuaa"
     },
     {

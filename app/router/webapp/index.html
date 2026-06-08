@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance Management</title>
+  <script>
+    (function () {
+      "use strict";
+
+      const isLocal = window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname === "[::1]" ||
+        window.location.hostname.includes("applicationstudio.cloud.sap");
+
+      const appUrls = isLocal ? {
+        home: "/maintenance.home/index.html",
+        workOrders: "/maintenance.workorder.workorder/index.html",
+        equipment: "/maintenance.equipment.equipment/index.html"
+      } : {
+        home: "/maintenancehome/index.html",
+        workOrders: "/maintenanceworkorderworkorder/index.html",
+        equipment: "/maintenanceequipmentequipment/index.html"
+      };
+
+      const allApps = {
+        "Shell-home": {
+          title: "Maintenance Home",
+          description: "Role-based dashboard",
+          icon: "sap-icon://home",
+          additionalInformation: "SAPUI5.Component=maintenance.home",
+          applicationType: "URL",
+          url: appUrls.home
+        },
+        "WorkOrders-manage": {
+          title: "Work Orders",
+          description: "View and process maintenance work orders",
+          icon: "sap-icon://activity-items",
+          additionalInformation: "SAPUI5.Component=maintenance.workorder.workorder",
+          applicationType: "URL",
+          url: appUrls.workOrders
+        },
+        "Equipment-display": {
+          title: "Master Equipment",
+          description: "View equipment master data",
+          icon: "sap-icon://machine",
+          additionalInformation: "SAPUI5.Component=maintenance.equipment.equipment",
+          applicationType: "URL",
+          url: appUrls.equipment
+        }
+      };
+
+      function appsForRole(role) {
+        if (role === "Technician") {
+          return {
+            "Shell-home": allApps["Shell-home"],
+            "WorkOrders-manage": allApps["WorkOrders-manage"]
+          };
+        }
+
+        return allApps;
+      }
+
+      function bootstrapShell(userInfo) {
+        const role = userInfo && userInfo.role || "";
+        const fullName = userInfo && (userInfo.userName || userInfo.email || userInfo.userId) || "User";
+
+        window["sap-ushell-config"] = {
+          defaultRenderer: "fiori2",
+          renderers: {
+            fiori2: {
+              componentData: {
+                config: {
+                  enableSearch: false,
+                  rootIntent: "Shell-home"
+                }
+              }
+            }
+          },
+          applications: appsForRole(role),
+          services: {
+            Container: {
+              adapter: {
+                config: {
+                  id: userInfo && userInfo.userId || "User",
+                  firstName: fullName,
+                  lastName: "",
+                  fullName: fullName
+                }
+              }
+            }
+          }
+        };
+
+        const shellScript = document.createElement("script");
+        shellScript.id = "sap-ushell-bootstrap";
+        shellScript.src = "https://ui5.sap.com/test-resources/sap/ushell/bootstrap/sandbox.js";
+        shellScript.onload = function () {
+          const ui5Script = document.createElement("script");
+          ui5Script.id = "sap-ui-bootstrap";
+          ui5Script.src = "https://ui5.sap.com/resources/sap-ui-core.js";
+          ui5Script.setAttribute("data-sap-ui-theme", "sap_horizon");
+          ui5Script.setAttribute("data-sap-ui-libs", "sap.m,sap.ushell,sap.ui.core");
+          ui5Script.setAttribute("data-sap-ui-compat-version", "edge");
+          ui5Script.setAttribute("data-sap-ui-async", "true");
+          ui5Script.onload = function () {
+            sap.ui.getCore().attachInit(function () {
+              sap.ushell.Container.createRenderer("fiori2", true).then(function (renderer) {
+                renderer.placeAt("content");
+              });
+            });
+          };
+          document.head.appendChild(ui5Script);
+        };
+        document.head.appendChild(shellScript);
+      }
+
+      fetch("/odata/v4/role/getUserInfo()", {
+        headers: {
+          "Accept": "application/json"
+        }
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Unable to load user role");
+          }
+          return response.json();
+        })
+        .then(bootstrapShell)
+        .catch(function (error) {
+          console.error("[maintenance-shell] Role lookup failed", error);
+          bootstrapShell({});
+        });
+    }());
+  </script>
+</head>
+<body class="sapUiBody" id="content">
+</body>
+</html>
