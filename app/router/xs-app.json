@@ -2,9 +2,15 @@
   "authenticationMethod": "route",
   "logout": {
     "logoutEndpoint": "/do/logout",
-    "logoutPage": "/"
+    "logoutPage": "/logged-out.html"
   },
   "routes": [
+    {
+      "source": "^/logged-out.html$",
+      "target": "/logged-out.html",
+      "localDir": "webapp",
+      "authenticationType": "none"
+    },
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",

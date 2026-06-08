@@ -126,7 +126,7 @@
                 const xhr = new XMLHttpRequest();
                 xhr.open("GET", "/", true, "___logout___", "___logout___");
                 xhr.onloadend = function () {
-                  document.body.innerHTML = "<div style=\"display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,sans-serif;background:#f5f6f7;\"><div style=\"text-align:center;padding:2rem;background:white;border-radius:0.5rem;box-shadow:0 0.125rem 0.75rem rgba(0,0,0,0.12);\"><h2 style=\"color:#0a6ed1;\">Signed Out</h2><p>Your local session was cleared.</p><button onclick=\"window.location.reload()\" style=\"padding:0.65rem 1.5rem;background:#0a6ed1;color:white;border:none;border-radius:0.375rem;cursor:pointer;\">Sign In Again</button></div></div>";
+                  window.location.replace("/logged-out.html");
                 };
                 xhr.send();
               };
