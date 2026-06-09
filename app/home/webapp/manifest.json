@@ -12,6 +12,7 @@
   },
   "sap.ui": {
     "technology": "UI5",
+    "fullWidth":true,
     "deviceTypes": {
       "desktop": true,
       "tablet": true,

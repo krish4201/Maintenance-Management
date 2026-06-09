@@ -9,16 +9,16 @@
   xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
   <App>
     <Page
-      title="Maintenance Management"
+      title="Dashboard"
       busy="{home>/loading}"
       class="homePage">
-      <headerContent>
+      <!-- <headerContent>
         <Button
-          text="{home>/role}"
+          text="{home>/name} - {home>/role}"
           type="Emphasized"
           icon="sap-icon://person-placeholder"
           enabled="false" />
-      </headerContent>
+      </headerContent> -->
       <content>
         <MessageStrip
           text="{home>/error}"
@@ -85,7 +85,7 @@
           </FlexBox>
 
           <FlexBox
-            class="chartGrid"
+            class="chartGrid sapUiMediumMarginTop"
             wrap="Wrap"
             renderType="Bare">
             <VBox class="chartPanel">
@@ -93,7 +93,7 @@
               <viz:VizFrame
                 id="assignedChart"
                 width="100%"
-                height="320px"
+                height="350px"
                 vizType="donut"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>
@@ -118,7 +118,7 @@
               <viz:VizFrame
                 id="statusChart"
                 width="100%"
-                height="320px"
+                height="350px"
                 vizType="column"
                 uiConfig="{applicationSet:'fiori'}">
                 <viz:dataset>

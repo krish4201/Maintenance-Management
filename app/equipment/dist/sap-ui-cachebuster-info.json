@@ -1,23 +1,11 @@
 {
-<<<<<<< HEAD
-  "Component-dbg.js": 1780639535778,
-  "i18n/i18n.properties": 1780665945738,
-  "Component.js": 1780639535778,
-  "manifest.json": 1780639535778,
-  "i18n/i18n_en.properties": 1780665945828,
-  "Component.js.map": 1780810442705,
-  "Component-preload.js": 1780810442823,
-  "Component-preload.js.map": 1780810442823,
-  "index.html": 1780675740569
-=======
-  "i18n/i18n_en.properties": 1780764853108,
-  "i18n/i18n.properties": 1780764853108,
-  "manifest.json": 1780764853108,
-  "Component.js": 1780764853108,
-  "Component-dbg.js": 1780764853108,
-  "Component.js.map": 1780817853050,
-  "Component-preload.js": 1780817853199,
-  "Component-preload.js.map": 1780817853199,
-  "index.html": 1780764853108
->>>>>>> bd38e9a4e94177eca96b6b79235519abf64c6ea0
+  "Component.js.map": 1780980099859,
+  "i18n/i18n_en.properties": 1780976455045,
+  "manifest.json": 1780976455045,
+  "Component.js": 1780976455037,
+  "Component-dbg.js": 1780976455037,
+  "i18n/i18n.properties": 1780976455045,
+  "Component-preload.js": 1780980100043,
+  "Component-preload.js.map": 1780980100043,
+  "index.html": 1780976455045
 }

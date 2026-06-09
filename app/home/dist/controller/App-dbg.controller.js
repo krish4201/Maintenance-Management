@@ -34,7 +34,9 @@ sap.ui.define([
       try {
         const user = await this._getJson("/odata/v4/role/getUserInfo()");
         const role = user.role || "";
-
+        const userName = user.userName || "";
+        
+        this._model.setProperty("/name", userName);
         this._model.setProperty("/role", role);
         this._model.setProperty("/supervisor", role === "Supervisor");
         this._model.setProperty("/planner", role === "Planner");
@@ -125,7 +127,7 @@ sap.ui.define([
         await this._postJson("/odata/v4/work-order/WorkOrders", payload);
         MessageToast.show("Work order created");
         this.byId("createWorkOrderDialog").close();
-        this.onOpenWorkOrders();
+        // this.onOpenWorkOrders();
       } catch (error) {
         this._setProperty("/error", error.message || "Unable to create work order");
       }
@@ -429,7 +431,7 @@ sap.ui.define([
     },
 
     _loadProcedureList: async function () {
-      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status");
+      const data = await this._getJson("/odata/v4/work-order/WorkOrders?$select=WorkOrderNo,EquipmentID,EquipmentName,ProcedureID,MaintenanceType,Status&$filter=Status ne 'Completed'");
       const workOrders = data.value || [];
       const procedures = await Promise.all(workOrders.map(async workOrder => {
         console.log("[procedure-list] Work order", {

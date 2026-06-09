@@ -12,13 +12,13 @@
       title="Dashboard"
       busy="{home>/loading}"
       class="homePage">
-      <!-- <headerContent>
+      <headerContent>
         <Button
           text="{home>/name} - {home>/role}"
           type="Emphasized"
           icon="sap-icon://person-placeholder"
           enabled="false" />
-      </headerContent> -->
+      </headerContent>
       <content>
         <MessageStrip
           text="{home>/error}"
