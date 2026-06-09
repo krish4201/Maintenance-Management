@@ -1,7 +1,43 @@
 {
   "xsappname": "maintenance-management",
   "tenant-mode": "dedicated",
-  "scopes": [],
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Planner",
+      "description": "Maintenance planner access"
+    },
+    {
+      "name": "$XSAPPNAME.Supervisor",
+      "description": "Maintenance supervisor access"
+    },
+    {
+      "name": "$XSAPPNAME.Technician",
+      "description": "Maintenance technician access"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Planner",
+      "description": "Create and view work orders and equipment",
+      "scope-references": [
+        "$XSAPPNAME.Planner"
+      ]
+    },
+    {
+      "name": "Supervisor",
+      "description": "View dashboard, create work orders, and assign technicians",
+      "scope-references": [
+        "$XSAPPNAME.Supervisor"
+      ]
+    },
+    {
+      "name": "Technician",
+      "description": "View assigned work orders and update status",
+      "scope-references": [
+        "$XSAPPNAME.Technician"
+      ]
+    }
+  ],
   "oauth2-configuration": {
     "redirect-uris": [
       "https://port5000-workspaces-ws-6lg32.ap21.trial.applicationstudio.cloud.sap/**",
