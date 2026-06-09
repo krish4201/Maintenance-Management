@@ -44,7 +44,7 @@ module.exports = cds.service.impl(async function () {
 
   this.on("getAssignedChart", async () => {
     const orders = await workorderSrv.run(
-      SELECT.from(WorkOrders).columns("AssignedName", "AssignedTo").where`status != 'Completed'`;
+      SELECT.from(WorkOrders).columns("AssignedName", "AssignedTo")where({ status: { '!=': 'Completed' } })
     );
 
     return aggregateAssigned(orders);
